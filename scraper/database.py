@@ -3,8 +3,10 @@ Functions for writing data to stickers database. Running the file allows for man
 """
 import sqlite3
 from Entities import Character, Sticker
+from utils import PROJECT_ROOT
 
-DB_PATH = "stickers.db"
+DB_PATH = f"{PROJECT_ROOT}/stickers.db"
+
 
 def get_connection():
     """
@@ -13,6 +15,7 @@ def get_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
 
 def initialize_database():
     """

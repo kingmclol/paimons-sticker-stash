@@ -8,26 +8,28 @@ import requests
 import datetime
 from Entities import Sticker
 
+# located in ROOT/scraper/utils.py so going back two levels to get to ROOT
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def download_sticker(sticker: Sticker) -> Tuple[str, bool]:
     """
-    Downloads the sticker's image to the local images/ directory. Returns a tuple with the filePATH (empty if failed)
+    Downloads the sticker's image to the nextjs public/stickers directory. Returns a tuple with the filePATH (empty if failed)
     and whether it was a cached download (already in computer so skipped downloading from source).
     """
     log(f"Downloading {sticker.full_title} (set {sticker.set_number})...")
-    os.makedirs("images", exist_ok=True)  # Ensure the directory exists
+    os.makedirs(f"{PROJECT_ROOT}/public/stickers", exist_ok=True)  # Ensure the directory exists
     response = requests.get(sticker.image_url_source)
     if response.status_code == 200:
-        os.makedirs(f"./images/set_{sticker.set_number}", exist_ok=True)  # Ensure the set directory exists
-        if os.path.exists(f"./images/set_{sticker.set_number}/{sticker.filename}"):
+        os.makedirs(f"{PROJECT_ROOT}/public/stickers/set_{sticker.set_number}", exist_ok=True)  # Ensure the set directory exists
+        if os.path.exists(f"{PROJECT_ROOT}/public/stickers/set_{sticker.set_number}/{sticker.filename}"):
             # If for some reason it already exists, skip.
             log(f"File {sticker.filename} already exists, skipping download.")
-            return f"./images/set_{sticker.set_number}/{sticker.filename}", True
+            return f"/stickers/set_{sticker.set_number}/{sticker.filename}", True
 
-        with open(f"./images/set_{sticker.set_number}/{sticker.filename}", "wb") as f:
+        with open(f"{PROJECT_ROOT}/public/stickers/set_{sticker.set_number}/{sticker.filename}", "wb") as f:
             f.write(response.content)
         log(f"Downloaded {sticker.full_title} as {sticker.filename}")
-        return f"./images/set_{sticker.set_number}/{sticker.filename}", False
+        return f"/stickers/set_{sticker.set_number}/{sticker.filename}", False
     else:
         print(f"Failed to download {sticker.full_title}")
         return "", False
