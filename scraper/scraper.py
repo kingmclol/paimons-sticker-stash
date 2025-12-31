@@ -120,6 +120,6 @@ def scrape_latest_set():
 
 
 if __name__ == "__main__":
-    scrape_sticker_set(1)
+    # scrape_sticker_set(1)
     # scrape_until_no_new_sets()
-    # scrape_latest_set()
+    scrape_latest_set()

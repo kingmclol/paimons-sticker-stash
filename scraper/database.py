@@ -5,7 +5,7 @@ import sqlite3
 from Entities import Character, Sticker
 from utils import PROJECT_ROOT
 
-DB_PATH = f"{PROJECT_ROOT}/stickers.db"
+DB_PATH = f"{PROJECT_ROOT}/prisma/stickers.db"
 
 
 def get_connection():
