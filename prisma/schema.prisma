@@ -21,20 +21,33 @@ model characters {
 }
 
 model stickers {
-  id                                              Int          @id @default(autoincrement())
-  created_at                                      DateTime     @default(now())
-  updated_at                                      DateTime     @default(now())
-  set_number                                      Int
+  id                                              Int            @id @default(autoincrement())
+  created_at                                      DateTime       @default(now())
+  updated_at                                      DateTime       @default(now())
+  set_id                                          Int
   character_id                                    Int
   title                                           String
   full_title                                      String
-  image_url_source                                String
-  filename                                        String
-  filepath                                        String
-  characters_characters_main_sticker_idTostickers characters[] @relation("characters_main_sticker_idTostickers")
-  characters_stickers_character_idTocharacters    characters   @relation("stickers_character_idTocharacters", fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  image_url_source                                String         @unique(map: "sqlite_autoindex_stickers_1")
+  filename                                        String         @unique(map: "sqlite_autoindex_stickers_2")
+  filepath                                        String         @unique(map: "sqlite_autoindex_stickers_3")
+  characters_characters_main_sticker_idTostickers characters[]   @relation("characters_main_sticker_idTostickers")
+  sticker_sets                                    sticker_sets[]
+  sticker_sets_stickers_set_idTosticker_sets      sticker_sets   @relation("stickers_set_idTosticker_sets", fields: [set_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  characters_stickers_character_idTocharacters    characters     @relation("stickers_character_idTocharacters", fields: [character_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([set_number, character_id, title], map: "sqlite_autoindex_stickers_1")
   @@index([character_id], map: "idx_character_id")
-  @@index([set_number], map: "idx_set_number")
+  @@index([image_url_source], map: "idx_sticker_image_url_source")
+  @@index([set_id], map: "idx_set_id")
+}
+
+model sticker_sets {
+  id                                     Int        @id @default(autoincrement())
+  created_at                             DateTime   @default(now())
+  updated_at                             DateTime   @default(now())
+  release_date                           DateTime?
+  name                                   String     @unique(map: "sqlite_autoindex_sticker_sets_1")
+  main_sticker_id                        Int?
+  stickers                               stickers?  @relation(fields: [main_sticker_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  stickers_stickers_set_idTosticker_sets stickers[] @relation("stickers_set_idTosticker_sets")
 }

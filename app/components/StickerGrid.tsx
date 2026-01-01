@@ -1,17 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { stickers } from "../generated/prisma/client";
+import { stickers, sticker_sets } from "../generated/prisma/client";
 
-function StickerGrid({ stickers }: { stickers: stickers[] }) {
+function StickerGrid({ stickers, sets }: { stickers: stickers[], sets: sticker_sets[]  }) {
   const [selectedSet, setSelectedSet] = useState("all");
-  const sets = Array.from({ length: 45 }, (_, index) => index + 1);
-
   const filteredStickers =
     selectedSet === "all"
       ? stickers
       : stickers.filter(
-          (sticker) => sticker.set_number === Number(selectedSet),
+          (sticker) => sticker.set_id === Number(selectedSet),
         );
 
   return (
@@ -23,9 +21,9 @@ function StickerGrid({ stickers }: { stickers: stickers[] }) {
           onChange={(e) => setSelectedSet(e.target.value)}
         >
           <option value={"all"}>All Sets</option>
-          {sets.map((setNum) => (
-            <option key={setNum} value={setNum}>
-              Set {setNum}
+          {sets.map((set) => (
+            <option key={set.id} value={set.id}>
+              Set {set.name}
             </option>
           ))}
         </select>
