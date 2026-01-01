@@ -190,12 +190,15 @@ def get_sticker_by_id(id: int) -> Sticker | None:
         c.execute("SELECT * FROM stickers WHERE id = ?", (id,))
         row = c.fetchone()
         if row:
+            character = get_character_by_id(row["character_id"])
+            sticker_set = get_sticker_set_by_id(row["set_id"])
+            assert character is not None and sticker_set is not None
             return Sticker(
                 title=row["title"],
                 image_url_source=row["image_url_source"],
-                character=get_character_by_id(row["character_id"]).name if get_character_by_id(row["character_id"]) else "",
+                character=character.name,
                 set_id=row["set_id"],
-                set_name=get_sticker_set_by_id(row["set_id"]).name if get_sticker_set_by_id(row["set_id"]) else "",
+                set_name=sticker_set.name,
                 id=row["id"],
                 character_id=row["character_id"],
                 filename=row["filename"]
@@ -228,12 +231,15 @@ def get_stickers_by_character_id(character_id: int) -> list[Sticker]:
         rows = c.fetchall()
         stickers = []
         for row in rows:
+            character = get_character_by_id(row["character_id"])
+            sticker_set = get_sticker_set_by_id(row["set_id"])
+            assert character is not None and sticker_set is not None
             stickers.append(Sticker(
                 title=row["title"],
                 image_url_source=row["image_url_source"],
-                character=get_character_by_id(row["character_id"]).name if get_character_by_id(row["character_id"]) else "",
+                character=character.name,
                 set_id=row["set_id"],
-                set_name=get_sticker_set_by_id(row["set_id"]).name if get_sticker_set_by_id(row["set_id"]) else "",
+                set_name=sticker_set.name,
                 id=row["id"],
                 character_id=row["character_id"],
                 filename=row["filename"]
@@ -260,12 +266,16 @@ def get_sticker_by_source_url(image_url_source: str) -> Sticker | None:
         c.execute("SELECT * FROM stickers WHERE image_url_source = ?", (image_url_source,))
         row = c.fetchone()
         if row:
+            character = get_character_by_id(row["character_id"])
+            sticker_set = get_sticker_set_by_id(row["set_id"])
+            assert character is not None and sticker_set is not None
+
             return Sticker(
                 title=row["title"],
                 image_url_source=row["image_url_source"],
-                character=get_character_by_id(row["character_id"]).name if get_character_by_id(row["character_id"]) else "",
+                character=character.name,
                 set_id=row["set_id"],
-                set_name=get_sticker_set_by_id(row["set_id"]).name if get_sticker_set_by_id(row["set_id"]) else "",
+                set_name=sticker_set.name,
                 id=row["id"],
                 character_id=row["character_id"],
                 filename=row["filename"]

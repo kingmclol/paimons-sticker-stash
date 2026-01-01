@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from utils import *
 from database import *
 from Entities import *
-
+import doctest
 
 def scrape_sticker_set(set_name: str) -> bool:
     """
@@ -195,9 +195,18 @@ def scrape_latest_set():
 def _extract_character_and_title(sticker_caption: BeautifulSoup) -> Tuple[str, str]:
     """
     Given sticker caption string, extracts and returns the character and title as a tuple.
+    >>> from bs4 import BeautifulSoup
+    >>> _extract_character_and_title(BeautifulSoup('<div><a>Ineffa</a>:\xa0ABC</div>', 'html.parser').find("div"))
+    ('Ineffa', 'ABC')
+    >>> _extract_character_and_title(BeautifulSoup('<div>Shake Hands</div>', 'html.parser').find("div"))
+    [... ...] WARN: Sticker 'Shake Hands' missing character
+    ('Unknown', 'Shake Hands')
+    >>> _extract_character_and_title(BeautifulSoup('<div><a>C</a>:\xa0<span><span>A</span> "B"</span></div>', 'html.parser').find("div"))
+    ('C', 'A "B"')
+    >>> _extract_character_and_title(BeautifulSoup('<div><a>Paimon</a></div>', 'html.parser').find("div"))
+    [... ...] WARN: Sticker 'Paimon' missing title
+    ('Paimon', 'Unknown')
     """
-    # Captions are generally formatted as "<a>Character</a>:(nonbreaking space)Title"
-    # Edge cases "<a>Character</a>"", "Title", "<a>Character</a>: <span>CN title <span>EN Title</span></span>"
     raw_text = sticker_caption.get_text()
     text_split = raw_text.split(":\xa0")
     anchor = sticker_caption.find("a")
@@ -224,6 +233,6 @@ def _extract_character_and_title(sticker_caption: BeautifulSoup) -> Tuple[str, s
     return character,title
 
 if __name__ == "__main__":
-    # scrape_sticker_set("2")
+    # doctest.testmod(verbose=True, optionflags=doctest.ELLIPSIS)
     # scrape_until_no_new_sets()
     scrape_latest_set()

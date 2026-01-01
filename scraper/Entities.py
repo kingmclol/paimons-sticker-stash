@@ -1,8 +1,6 @@
 """
 Entities file
 """
-from sanitize_file import sanitize_filename
-
 
 class Sticker:
     """
@@ -15,7 +13,7 @@ class Sticker:
         - set_id: The sticker set id
         - set_name: The sticker set name
         - filename: The sanitized filename for the sticker image
-        - filepath: The local filepath where the sticker image is saved ("" if not saved yet)
+        - filepath: The local filepath, relative to root/public where the sticker image is saved for frontend ("" if not saved yet)
         - id: the sticker's database ID (None if not saved yet)
         - character_id: the character's database ID (None if not saved yet)
     """
