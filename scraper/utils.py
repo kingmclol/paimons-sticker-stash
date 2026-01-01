@@ -73,7 +73,7 @@ def get_latest_set() -> int:
     """
     Returns the latest sticker set number from latest_set.txt
     """
-    with open("latest_set.txt", "r") as f:
+    with open(f"{PROJECT_ROOT}/scraper/latest_set.txt", "r") as f:
         latest_set = int(f.read().strip())
     return latest_set
 
@@ -82,7 +82,7 @@ def update_latest_set(set_number: int):
     """
     Updates the latest sticker set number in latest_set.txt
     """
-    with open("latest_set.txt", "w") as f:
+    with open(f"{PROJECT_ROOT}/scraper/latest_set.txt", "w") as f:
         f.write(str(set_number))
 
 
