@@ -42,5 +42,6 @@ next-env.d.ts
 
 .idea
 __pycache__
-
+.vscode
+.venv
 /app/generated/prisma
