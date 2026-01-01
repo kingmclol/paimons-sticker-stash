@@ -5,7 +5,6 @@ export default async function Home() {
   const stickers = await prisma.stickers.findMany();
   const sticker_sets = await prisma.sticker_sets.findMany();
   const characters = await prisma.characters.findMany();
-  console.log(stickers);
   return (
     <StickerGrid
       stickers={stickers}
