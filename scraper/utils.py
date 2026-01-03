@@ -60,14 +60,14 @@ def extract_sticker_original_image_url(image_url: str) -> str:
 
 def extract_filename(image_url: str) -> str:
     """
-    Given a image source URL, extracts the filename from it.
+    Given a image source URL, extracts the filename from it as a WEBP since apparently that's what I get from downloading the image.
     >>> extract_filename("https://static.wikia.nocookie.net/gensin-impact/images/0/01/Icon_Emoji_Paimon%27s_Paintings_01_Paimon_6.png")
-    "Icon_Emoji_Paimon's_Paintings_01_Paimon_6.png"
+    "Icon_Emoji_Paimon's_Paintings_01_Paimon_6.webp"
     >>> extract_filename("https://static.wikia.nocookie.net/gensin-impact/images/0/01/Icon_Emoji_Paimon%27s_Paintings_01_Paimon_6.png/revision/latest/scale-to-width-down/185?cb=20220912154045")
-    "Icon_Emoji_Paimon's_Paintings_01_Paimon_6.png"
+    "Icon_Emoji_Paimon's_Paintings_01_Paimon_6.webp"
     """
     img_original = extract_sticker_original_image_url(image_url)
-    return urllib.parse.unquote(img_original.split("/")[-1])
+    return urllib.parse.unquote(img_original.split("/")[-1].replace(".png", ".webp"))
 
 def get_latest_set() -> int:
     """
