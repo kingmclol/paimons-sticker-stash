@@ -1,0 +1,7 @@
+[functions]
+  included_files = ["stickers.db"]
+  external_node_modules = ["better-sqlite3"]
+  node_bundler = "esbuild"
+
+[build]
+  command = "npm run build"
