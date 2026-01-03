@@ -15,3 +15,11 @@ export async function generateMetadata({
     return { title: "Unknown Character" };
   } else return { title: params.name };
 }
+
+export default function layout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mx-auto max-w-4xl">
+      <div className="grid grid-rows-[auto_auto] py-4">{children}</div>
+    </div>
+  );
+}
