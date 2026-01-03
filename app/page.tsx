@@ -1,15 +1,57 @@
-import { prisma } from "@/lib/prisma";
-import StickerGrid from "./components/StickerGrid";
+import Link from "next/link";
+import { FaGithub } from "react-icons/fa";
+import LogoImage from "./components/LogoImage";
 
 export default async function Home() {
-  const stickers = await prisma.stickers.findMany();
-  const sticker_sets = await prisma.sticker_sets.findMany();
-  const characters = await prisma.characters.findMany();
   return (
-    <StickerGrid
-      stickers={stickers}
-      sets={sticker_sets}
-      characters={characters}
-    />
+    <div className="mx-auto flex h-full max-w-4xl flex-col items-center justify-center gap-12 text-center">
+      <div className="flex flex-col items-center justify-center gap-2">
+        <LogoImage />
+        <h1 className="text-4xl font-bold tracking-wide">
+          Paimon&apos;s Sticker Stash
+        </h1>
+      </div>
+      <p className="italic max-w-xl">
+        A collection of stickers from Genshin Impact, scraped from the Fandom
+        Wiki since I want to filter and save them. And uh... that&apos;s about
+        it.
+      </p>
+      <ul className="grid grid-cols-2 gap-8">
+        <li>
+          <Link
+            className="flex items-center justify-center rounded-lg px-8 py-4 font-semibold hover:bg-slate-700"
+            href="/stash"
+          >
+            Browse Stickers
+          </Link>
+        </li>
+        <li>
+          <Link
+            className="flex items-center justify-center rounded-lg px-8 py-4 font-semibold hover:bg-slate-700"
+            href="/characters"
+          >
+            Browse Characters
+          </Link>
+        </li>
+        <li>
+          <Link
+            className="flex items-center justify-center rounded-lg px-8 py-4 font-semibold hover:bg-slate-700"
+            href="/sets"
+          >
+            Browse Sets
+          </Link>
+        </li>
+        <li>
+          <Link
+            className="flex items-center justify-center gap-2 rounded-lg px-8 py-4 font-semibold hover:bg-slate-700"
+            href="https://github.com/kingmclol/paimons-sticker-stash"
+            target="_blank"
+          >
+            <FaGithub />
+            Github
+          </Link>
+        </li>
+      </ul>
+    </div>
   );
 }
