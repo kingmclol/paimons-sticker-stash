@@ -14,7 +14,7 @@ function PageHeader({
     <div className="flex gap-8 p-8 items-center">
       <div className="flex-none rounded-2xl border-2 p-2">
         <Image
-          src={sticker?.filepath ?? "Item_Unknown.webp"}
+          src={sticker?.filepath ?? "/Item_Unknown.webp"}
           width={128}
           height={128}
           alt={sticker?.full_title ?? "Unknown"}

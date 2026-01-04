@@ -1,7 +1,7 @@
 import prisma from "@/lib/prisma";
 import { sticker_sets } from "../generated/prisma/client";
+import { formatDate } from "../utils/utils";
 import Card from "./Card";
-import { format } from "date-fns";
 
 async function StickerSetCard({ stickerSet }: { stickerSet: sticker_sets }) {
   let image;
@@ -17,20 +17,22 @@ async function StickerSetCard({ stickerSet }: { stickerSet: sticker_sets }) {
   }
 
   if (!stickerSet.release_date) {
-    releaseDate = "Unknown"
+    releaseDate = "Unknown";
   } else {
-    releaseDate = format(stickerSet.release_date, "MMMM d, yyyy")
+    releaseDate = formatDate(stickerSet.release_date);
   }
 
-  
   return (
     <Card
       imageSrc={image}
-      subtext={`Released ${releaseDate}`}
       title={`Set ${stickerSet.name}`}
       href={`/sets/${stickerSet.name}`}
       id={stickerSet.id}
-    />
+    >
+      <p>
+        Released <span className="font-semibold">{releaseDate}</span>
+      </p>
+    </Card>
   );
 }
 

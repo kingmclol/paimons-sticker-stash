@@ -8,7 +8,7 @@ function StickerGrid({ stickers }: { stickers: stickers[] }) {
       <div className="flex items-center justify-center text-lg font-bold tracking-wide">
         <div className="flex flex-col items-center justify-center p-2 text-center">
           <ErrorImage/>
-          No stickers found! Loosen up your set and/or character filters.
+          No stickers found
         </div>
       </div>
     );

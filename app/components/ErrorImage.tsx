@@ -8,16 +8,24 @@ import Image from "next/image";
 // id 39: Diona: Irritiable
 
 // Well nevermind this won't work
-async function ErrorImage({ size = 256 }: { size?: number }) {
-  const sticker = await prisma.stickers.findUnique({
-    where: { id: 8 },
-  });
+function ErrorImage({ size = 256 }: { size?: number }) {
+  // const sticker = await prisma.stickers.findUnique({
+  //   where: { id: 8 },
+  // });
+  // return (
+  //   <Image
+  //     src={sticker!.filepath}
+  //     width={size}
+  //     height={size}
+  //     alt={sticker!.full_title}
+  //   />
+  // );
   return (
     <Image
-      src={sticker!.filepath}
+      src="/stickers/set_1/Icon_Emoji_Paimon's_Paintings_01_Amber_1.webp"
       width={size}
       height={size}
-      alt={sticker!.full_title}
+      alt="Amber: Noooo!"
     />
   );
 }

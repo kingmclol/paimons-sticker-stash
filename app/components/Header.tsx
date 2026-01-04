@@ -3,7 +3,7 @@ import Logo from "./Logo";
 
 function Header() {
   return (
-    <header className="border-b px-2">
+    <header className="border-b px-2 z-50 sticky top-0 bg-black/75 backdrop-blur-md">
       <ul className="flex justify-between">
         <li className="mr-auto">
           <Logo />

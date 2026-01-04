@@ -6,9 +6,5 @@ export const metadata: Metadata = {
 };
 
 export default function layout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mx-auto max-w-4xl">
-      <div className="grid grid-rows-[auto_auto] py-4">{children}</div>
-    </div>
-  );
+  return children;
 }

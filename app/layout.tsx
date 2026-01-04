@@ -29,9 +29,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="grid h-screen grid-rows-[auto_1fr]">
+        <div className="flex min-h-screen flex-col">
           <Header />
-          <main className="overflow-auto">{children}</main>
+          <main className="relative flex-1 grid">{children}</main>
         </div>
         <Toaster
           position="bottom-right"

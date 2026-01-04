@@ -6,20 +6,17 @@ export async function generateMetadata({
 }: {
   params: { name: string };
 }): Promise<Metadata> {
+  const { name } = await params;
   const charExists =
     (await prisma.characters.count({
-      where: { name: params.name },
+      where: { name: name },
     })) > 0;
 
   if (!charExists) {
-    return { title: "Unknown Character" };
-  } else return { title: params.name };
+    return { title: "Sticker Stash: Unknown" };
+  } else return { title: `Sticker Stash: ${name}` };
 }
 
 export default function layout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="mx-auto max-w-4xl">
-      <div className="grid grid-rows-[auto_auto] py-4">{children}</div>
-    </div>
-  );
+  return children;
 }

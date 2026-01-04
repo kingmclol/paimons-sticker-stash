@@ -1,19 +1,19 @@
-import prisma from "@/lib/prisma";
-import { characters } from "../generated/prisma/client";
+import { Character } from "@/lib/types";
 import Card from "./Card";
 
-async function CharacterCard({ character }: { character: characters }) {
-  const main_sticker = await prisma.stickers.findUnique({
-    where: { id: character.main_sticker_id ?? undefined },
-  });
+function CharacterCard({ character }: { character: Character }) {
   return (
     <Card
       title={character.name}
-      imageSrc={main_sticker?.filepath ?? "Item_Unknown.webp"}
-      subtext={character.description ?? "..."}
+      imageSrc={character.main_sticker?.filepath ?? "/Item_Unknown.webp"}
       href={`/characters/${character.name}`}
       id={character.id}
-    />
+    >
+      <p>
+        <span className="font-bold">{character.num_stickers}</span> sticker
+        {character.num_stickers !== 1 ? "s" : ""}
+      </p>
+    </Card>
   );
 }
 
