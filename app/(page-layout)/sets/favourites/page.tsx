@@ -1,6 +1,6 @@
-import PageHeader from "@/app/components/PageHeader"
-import StickerGridViewer from "@/app/components/StickerGridViewer"
-import prisma from "@/lib/prisma"
+import PageHeader from "@/app/components/PageHeader";
+import StickerGridViewer from "@/app/components/StickerGridViewer";
+import prisma from "@/lib/prisma";
 
 async function page() {
   const stickers = await prisma.stickers.findMany();
@@ -12,9 +12,13 @@ async function page() {
         imageSrc="/primogem.png"
         description={"All of your favourite stickers. The collection grows!"}
       />
-      <StickerGridViewer stickers={stickers} starredOnly />
+      <StickerGridViewer
+        stickers={stickers}
+        starredOnly
+        canFilterStarred={false}
+      />
     </>
-  )
+  );
 }
 
-export default page
+export default page;

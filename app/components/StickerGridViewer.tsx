@@ -14,11 +14,13 @@ const pageSize = 50;
 function StickerGridViewer({
   stickers,
   starredOnly = false,
-  canFilterStarred = false,
+  canFilterStarred = true,
+  canSearch = true,
 }: {
   stickers: Sticker[];
   starredOnly?: boolean;
   canFilterStarred?: boolean;
+  canSearch?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [favouritesOnly, setFavouritesOnly] = useState(starredOnly);
@@ -58,19 +60,21 @@ function StickerGridViewer({
   if (!hydrated) {
     return null;
   }
-  
+
   return (
     <div className="grid h-full grid-rows-[auto_1fr]">
       <StickyTop>
         <div className="mx-auto flex w-4/5 justify-center gap-12">
-          <SearchBar
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(1);
-            }}
-            value={query}
-            placeholder="Search stickers..."
-          />
+          {canSearch && (
+            <SearchBar
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPage(1);
+              }}
+              value={query}
+              placeholder="Search stickers..."
+            />
+          )}
           {canFilterStarred && (
             <div className="bg-background/75 flex items-center gap-2 rounded-xl border px-4 py-2">
               <label htmlFor="favouritesOnly" className="select-none">

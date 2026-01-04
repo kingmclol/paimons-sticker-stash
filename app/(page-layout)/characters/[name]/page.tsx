@@ -1,5 +1,4 @@
 import PageHeader from "@/app/components/PageHeader";
-import StickerGrid from "@/app/components/StickerGrid";
 import StickerGridViewer from "@/app/components/StickerGridViewer";
 import { decodeFromURL } from "@/app/utils/utils";
 import prisma from "@/lib/prisma";
@@ -19,7 +18,7 @@ async function page({ params }: { params: { name: string } }) {
           title="Unknown Character"
           description="The character you are looking for does not exist."
         />
-        <StickerGrid stickers={[]} />
+        <StickerGridViewer stickers={[]} />
       </>
     );
   }
