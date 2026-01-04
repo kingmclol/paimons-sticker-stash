@@ -15,7 +15,7 @@ async function page() {
         sticker={sticker}
         description="You found Paimon's sticker stash! Time to look through the bounty..."
       />
-      <StickerGridViewer stickers={stickers} />
+      <StickerGridViewer stickers={stickers} canFilterStarred={true} />
     </>
   );
 }

@@ -11,7 +11,7 @@ export default async function Home() {
           Paimon&apos;s Sticker Stash
         </h1>
       </div>
-      <p className="italic max-w-xl">
+      <p className="max-w-xl italic">
         A collection of stickers from Genshin Impact, scraped from the Fandom
         Wiki since I want to filter and save them. And uh... that&apos;s about
         it.
@@ -19,7 +19,7 @@ export default async function Home() {
       <ul className="grid grid-cols-2 gap-8">
         <li>
           <Link
-            className="flex items-center justify-center rounded-lg px-8 py-4 font-semibold hover:bg-slate-700"
+            className="hover:bg-foreground hover:text-background flex items-center justify-center rounded-lg px-8 py-4 font-semibold"
             href="/stash"
           >
             Browse Stickers
@@ -27,7 +27,7 @@ export default async function Home() {
         </li>
         <li>
           <Link
-            className="flex items-center justify-center rounded-lg px-8 py-4 font-semibold hover:bg-slate-700"
+            className="hover:bg-foreground hover:text-background flex items-center justify-center rounded-lg px-8 py-4 font-semibold"
             href="/characters"
           >
             Browse Characters
@@ -35,7 +35,7 @@ export default async function Home() {
         </li>
         <li>
           <Link
-            className="flex items-center justify-center rounded-lg px-8 py-4 font-semibold hover:bg-slate-700"
+            className="hover:bg-foreground hover:text-background flex items-center justify-center rounded-lg px-8 py-4 font-semibold"
             href="/sets"
           >
             Browse Sets
@@ -43,7 +43,7 @@ export default async function Home() {
         </li>
         <li>
           <Link
-            className="flex items-center justify-center gap-2 rounded-lg px-8 py-4 font-semibold hover:bg-slate-700"
+            className="hover:bg-foreground hover:text-background flex items-center justify-center gap-2 rounded-lg px-8 py-4 font-semibold"
             href="https://github.com/kingmclol/paimons-sticker-stash"
             target="_blank"
           >

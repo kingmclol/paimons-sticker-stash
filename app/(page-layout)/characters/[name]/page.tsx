@@ -1,11 +1,14 @@
 import PageHeader from "@/app/components/PageHeader";
 import StickerGrid from "@/app/components/StickerGrid";
+import StickerGridViewer from "@/app/components/StickerGridViewer";
+import { decodeFromURL } from "@/app/utils/utils";
 import prisma from "@/lib/prisma";
 
 async function page({ params }: { params: { name: string } }) {
   const { name } = await params;
+  const decodedName = decodeFromURL(name);
   const character = await prisma.characters.findUnique({
-    where: { name: name },
+    where: { name: decodedName },
   });
 
   if (!character) {
@@ -36,7 +39,7 @@ async function page({ params }: { params: { name: string } }) {
         title={character.name}
         description={character.description || ""}
       />
-      <StickerGrid stickers={stickers} />
+      <StickerGridViewer stickers={stickers} />
     </>
   );
 }

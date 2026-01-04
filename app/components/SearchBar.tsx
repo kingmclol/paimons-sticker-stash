@@ -1,7 +1,7 @@
 function SearchBar({
   value,
   onChange,
-  className = "w-4/5 rounded-xl border bg-black/75 px-4 py-2 text-center mx-auto",
+  className = "w-4/5 rounded-xl border bg-background/75 px-4 py-2 text-center mx-auto",
   placeholder = "Search...",
 }: {
   value: string;

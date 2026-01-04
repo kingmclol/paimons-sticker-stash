@@ -1,18 +1,26 @@
 "use client";
 import { Sticker } from "@/lib/types";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocalStorageState } from "../hooks/useLocalStorageState";
 import Pagination from "./Pagination";
 import SearchBar from "./SearchBar";
 import StickerGrid from "./StickerGrid";
-import StickyTop from "./StickyTop";
 import StickyBottom from "./StickyBottom";
+import StickyTop from "./StickyTop";
 
 const pageSize = 50;
 
-function StickerGridViewer({ stickers }: { stickers: Sticker[] }) {
+function StickerGridViewer({
+  stickers,
+  starredOnly = false,
+  canFilterStarred = false,
+}: {
+  stickers: Sticker[];
+  starredOnly?: boolean;
+  canFilterStarred?: boolean;
+}) {
   const [query, setQuery] = useState("");
-  const [favouritesOnly, setFavouritesOnly] = useState(false);
+  const [favouritesOnly, setFavouritesOnly] = useState(starredOnly);
   const [favoriteStickerIds] = useLocalStorageState<number[]>(
     [],
     "favouriteStickerIds",
@@ -56,20 +64,22 @@ function StickerGridViewer({ stickers }: { stickers: Sticker[] }) {
             value={query}
             placeholder="Search stickers..."
           />
-          <div className="flex items-center gap-2 rounded-xl border bg-black/75 px-4 py-2">
-            <label htmlFor="favouritesOnly" className="select-none">
-              Favourites
-            </label>
-            <input
-              className="h-4 w-4"
-              type="checkbox"
-              checked={favouritesOnly}
-              onChange={(e) => {
-                setFavouritesOnly(e.target.checked);
-                setPage(1);
-              }}
-            />
-          </div>
+          {canFilterStarred && (
+            <div className="bg-background/75 flex items-center gap-2 rounded-xl border px-4 py-2">
+              <label htmlFor="favouritesOnly" className="select-none">
+                Favourites
+              </label>
+              <input
+                className="h-4 w-4"
+                type="checkbox"
+                checked={favouritesOnly}
+                onChange={(e) => {
+                  setFavouritesOnly(e.target.checked);
+                  setPage(1);
+                }}
+              />
+            </div>
+          )}
         </div>
       </StickyTop>
       <StickerGrid stickers={pagedStickers} />

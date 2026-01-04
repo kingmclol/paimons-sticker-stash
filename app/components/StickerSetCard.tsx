@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { sticker_sets } from "../generated/prisma/client";
-import { formatDate } from "../utils/utils";
+import { encodeForURL, formatDate } from "../utils/utils";
 import Card from "./Card";
 
 async function StickerSetCard({ stickerSet }: { stickerSet: sticker_sets }) {
@@ -26,7 +26,7 @@ async function StickerSetCard({ stickerSet }: { stickerSet: sticker_sets }) {
     <Card
       imageSrc={image}
       title={`Set ${stickerSet.name}`}
-      href={`/sets/${stickerSet.name}`}
+      href={`/sets/${encodeForURL(stickerSet.name)}`}
       id={stickerSet.id}
     >
       <p>
