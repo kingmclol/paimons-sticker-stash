@@ -1,23 +1,14 @@
 "use client";
 import { stickers } from "../generated/prisma/client";
-import useHasHydrated from "../hooks/useHasHydrated";
-import { useLocalStorageState } from "../hooks/useLocalStorageState";
 import ErrorImage from "./ErrorImage";
 import Starrable from "./Starrable";
 import StickerCard from "./StickerCard";
 
-function StickerGrid({ stickers }: { stickers: stickers[] }) {
-  const [favouriteStickerIds, setFavouriteStickerIds] = useLocalStorageState<
-    number[]
-  >([], "favouriteStickerIds");
-  const hydrated = useHasHydrated();
+function StickerGrid({ stickers, starredStickerIds, setFavouriteStickerIds }: { stickers: stickers[], starredStickerIds: number[], setFavouriteStickerIds: React.Dispatch<React.SetStateAction<number[]>> }) {
 
-  if (!hydrated) {
-    return null;
-  }
 
   function toggleStar(stickerId: number) {
-    if (favouriteStickerIds.includes(stickerId)) {
+    if (starredStickerIds.includes(stickerId)) {
       setFavouriteStickerIds((prev) => prev.filter((id) => id !== stickerId));
     } else {
       setFavouriteStickerIds((prev) => [...prev, stickerId]);
@@ -39,7 +30,7 @@ function StickerGrid({ stickers }: { stickers: stickers[] }) {
       {stickers.map((sticker) => (
         <Starrable
           key={sticker.id}
-          isStarred={favouriteStickerIds.includes(sticker.id)}
+          isStarred={starredStickerIds.includes(sticker.id)}
           onClick={() => toggleStar(sticker.id)}
         >
           <StickerCard sticker={sticker} />

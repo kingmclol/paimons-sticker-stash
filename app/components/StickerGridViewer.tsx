@@ -7,6 +7,7 @@ import SearchBar from "./SearchBar";
 import StickerGrid from "./StickerGrid";
 import StickyBottom from "./StickyBottom";
 import StickyTop from "./StickyTop";
+import useHasHydrated from "../hooks/useHasHydrated";
 
 const pageSize = 50;
 
@@ -21,10 +22,10 @@ function StickerGridViewer({
 }) {
   const [query, setQuery] = useState("");
   const [favouritesOnly, setFavouritesOnly] = useState(starredOnly);
-  const [favoriteStickerIds] = useLocalStorageState<number[]>(
-    [],
-    "favouriteStickerIds",
-  );
+  const [favoriteStickerIds, setFavoriteStickerIds] = useLocalStorageState<
+    number[]
+  >([], "favouriteStickerIds");
+  console.log(favoriteStickerIds);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -52,6 +53,12 @@ function StickerGridViewer({
     return filteredStickers.slice(startIndex, startIndex + pageSize);
   }, [filteredStickers, page]);
 
+  const hydrated = useHasHydrated();
+
+  if (!hydrated) {
+    return null;
+  }
+  
   return (
     <div className="grid h-full grid-rows-[auto_1fr]">
       <StickyTop>
@@ -82,7 +89,11 @@ function StickerGridViewer({
           )}
         </div>
       </StickyTop>
-      <StickerGrid stickers={pagedStickers} />
+      <StickerGrid
+        starredStickerIds={favoriteStickerIds}
+        setFavouriteStickerIds={setFavoriteStickerIds}
+        stickers={pagedStickers}
+      />
       {filteredStickers.length > 0 && (
         <StickyBottom>
           <Pagination
