@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FaGithub } from "react-icons/fa";
+import { HiCodeBracketSquare } from "react-icons/hi2";
 import LogoImage from "./components/LogoImage";
 
 export default async function Home() {
@@ -44,13 +44,22 @@ export default async function Home() {
         <li>
           <Link
             className="hover:bg-foreground hover:text-background flex items-center justify-center gap-2 rounded-lg px-8 py-4 font-semibold"
+            href="/api"
+          >
+            <HiCodeBracketSquare size={32}/>
+            API Reference
+          </Link>
+        </li>
+        {/* <li>
+          <Link
+            className="hover:bg-foreground hover:text-background flex items-center justify-center gap-2 rounded-lg px-8 py-4 font-semibold"
             href="https://github.com/kingmclol/paimons-sticker-stash"
             target="_blank"
           >
             <FaGithub />
             Github
           </Link>
-        </li>
+        </li> */}
       </ul>
     </div>
   );
