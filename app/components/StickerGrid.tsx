@@ -1,4 +1,5 @@
 "use client";
+import toast from "react-hot-toast";
 import { stickers } from "../generated/prisma/client";
 import ErrorImage from "./ErrorImage";
 import Starrable from "./Starrable";
@@ -8,10 +9,17 @@ function StickerGrid({ stickers, starredStickerIds, setFavouriteStickerIds }: { 
 
 
   function toggleStar(stickerId: number) {
+    const sticker = stickers.find((s) => s.id === stickerId);
+    if (!sticker) {
+      toast.error("Sticker not found");
+      return;
+    }
     if (starredStickerIds.includes(stickerId)) {
       setFavouriteStickerIds((prev) => prev.filter((id) => id !== stickerId));
+      toast.success(`Removed "${sticker.full_title}"`, {id: String(sticker.id)});
     } else {
       setFavouriteStickerIds((prev) => [...prev, stickerId]);
+      toast.success(`Added "${sticker.full_title}"`, {id: String(sticker.id)});
     }
   }
   if (stickers.length == 0) {
