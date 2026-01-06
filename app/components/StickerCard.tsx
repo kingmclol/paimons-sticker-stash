@@ -4,18 +4,21 @@ import { stickers } from "../generated/prisma/client";
 function StickerCard({ sticker }: { sticker: stickers }) {
   return (
     <div
-      className="flex flex-col items-center justify-center gap-2"
+      className="relative flex flex-col items-center justify-center gap-2"
       key={sticker.id}
     >
-      <Image
-        width={256}
-        height={256}
-        src={sticker.filepath}
-        alt={sticker.full_title}
-      />
-      <p className="text-center font-bold">
-        {sticker.full_title} (ID: {sticker.id})
-      </p>
+      <div className="relative">
+        <Image
+          width={256}
+          height={256}
+          src={sticker.filepath}
+          alt={sticker.full_title}
+        />
+        <div className="bg-background absolute right-2 bottom-1 rounded px-1 text-sm opacity-75">
+          ID {sticker.id}
+        </div>
+      </div>
+      <p className="text-center font-bold">{sticker.full_title}</p>
     </div>
   );
 }
