@@ -3,7 +3,7 @@ export const dynamic = "force-static";
 
 import prisma from "@/lib/prisma";
 import { StickerSetSchema } from "@/lib/schemas";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 // only static stuff so everything else auto 404
 export async function generateStaticParams() {
@@ -17,7 +17,7 @@ export async function generateStaticParams() {
 }
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;

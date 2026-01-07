@@ -2,7 +2,7 @@ export const dynamic = "force-static";
 export const dynamicParams = false;
 import prisma from "@/lib/prisma";
 import { StickerSchema } from "@/lib/schemas";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function generateStaticParams() {
   const sticker_ids = await prisma.stickers.findMany({
@@ -15,7 +15,7 @@ export async function generateStaticParams() {
 }
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;

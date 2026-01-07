@@ -98,3 +98,38 @@ export const CharacterSchema = z.object({
     example: [5, 9, 10, 11, 12, 13],
   }),
 });
+
+export const StickersQuerySchema = z.object({
+  character_id: z.coerce.number().int().positive().optional().openapi({
+    description:
+      "Restrict stickers to those belonging to character with this ID.",
+    example: 5,
+  }),
+  set_id: z.coerce.number().int().positive().optional().openapi({
+    description: "Restrict stickers to those belonging to set with this ID.",
+    example: 1,
+  }),
+  query: z
+    .string()
+    .optional()
+    .openapi({
+      description:
+        "Restrict stickers to those with full titles containing this query, case insensitive.",
+      examples: ["time", "Paim", "happy"],
+    }),
+});
+
+export const CharactersQuerySchema = z.object({
+  min_stickers: z.coerce.number().int().nonnegative().optional().openapi({
+    description:
+      "Restrict characters to those with at least this many stickers.",
+    example: 5,
+  }),
+});
+
+export const StickerSetsQuerySchema = z.object({
+  min_stickers: z.coerce.number().int().nonnegative().optional().openapi({
+    description: "Restrict sets to those with at least this many stickers. Not particularly useful in hindsight but whatever.",
+    example: 20,
+  }),
+});

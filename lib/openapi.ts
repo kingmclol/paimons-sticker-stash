@@ -3,7 +3,14 @@ import {
   OpenAPIRegistry,
 } from "@asteasolutions/zod-to-openapi";
 import z from "zod";
-import { CharacterSchema, StickerSchema, StickerSetSchema } from "./schemas";
+import {
+  CharacterSchema,
+  CharactersQuerySchema,
+  StickerSchema,
+  StickerSetSchema,
+  StickerSetsQuerySchema,
+  StickersQuerySchema,
+} from "./schemas";
 
 export const registry = new OpenAPIRegistry();
 
@@ -41,6 +48,9 @@ registry.registerPath({
   method: "get",
   path: "sets",
   summary: "Get all sticker sets",
+  request: {
+    query: StickerSetsQuerySchema,
+  },
   responses: {
     200: {
       description: "List of sticker set objects",
@@ -49,6 +59,9 @@ registry.registerPath({
           schema: StickerSetSchema.array(),
         },
       },
+    },
+    400: {
+      description: "Bad request",
     },
     404: {
       description: "Sticker sets not found",
@@ -61,6 +74,9 @@ registry.registerPath({
   method: "get",
   path: "characters",
   summary: "Get all characters",
+  request: {
+    query: CharactersQuerySchema,
+  },
   responses: {
     200: {
       description: "List of character objects",
@@ -72,6 +88,9 @@ registry.registerPath({
     },
     404: {
       description: "Characters not found",
+    },
+    400: {
+      description: "Bad request",
     },
   },
 });
@@ -131,6 +150,9 @@ registry.registerPath({
   method: "get",
   path: "stickers",
   summary: "Get all stickers",
+  request: {
+    query: StickersQuerySchema,
+  },
   responses: {
     200: {
       description: "Array of sticker objects",
@@ -139,6 +161,9 @@ registry.registerPath({
           schema: StickerSchema.array(),
         },
       },
+    },
+    400: {
+      description: "Bad request",
     },
     404: {
       description: "Character not found",
@@ -153,7 +178,7 @@ export function getApiSpec() {
     info: {
       title: "Paimon's Sticker Stash API",
       version: "1.0.0",
-      description: "API for browsing Paimon's Sticker Stash.",
+      description: "API for browsing Paimon's Sticker Stash. Sticker database should check for new stickers on Mondays, assuming I didn't mess anything up.\n\nThere is a non-zero chance that I will have to rebuild the entire database due to some... questionable database decisions, meaning that IDs may shuffle. In such a case, if for some reason you need to use the old IDs, check the git history for a previous version of the stickers database.",
     },
     servers: [
       {
