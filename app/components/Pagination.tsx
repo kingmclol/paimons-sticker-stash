@@ -14,11 +14,14 @@ function Pagination({
   const numPages = Math.ceil(numItems / pageSize);
   const numItemsPaged = Math.min(pageSize, numItems - (page - 1) * pageSize);
   return (
-    <div className="bg-background/75 mx-auto mt-2 flex w-3/4 items-center justify-between gap-4 rounded-lg border px-4 py-2 text-center lg:w-1/2">
+    <div className="bg-background/75 mx-auto flex w-3/4 items-center justify-between gap-4 rounded-lg border px-4 py-2 text-center lg:w-1/2">
       <button
         className="flex items-center gap-2 rounded-full border px-2 py-1 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         disabled={page === 1}
-        onClick={() => setPage(page - 1)}
+        onClick={() => {
+          setPage(page - 1);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
       >
         <HiChevronLeft />
         <span className="hidden sm:inline">Prev</span>
@@ -34,7 +37,10 @@ function Pagination({
       <button
         className="flex items-center gap-2 rounded-full border px-2 py-1 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         disabled={page === numPages}
-        onClick={() => setPage(page + 1)}
+        onClick={() => {
+          setPage(page + 1);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
       >
         <span className="hidden sm:inline">Next</span>
         <HiChevronRight />

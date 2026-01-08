@@ -50,16 +50,6 @@ export default async function Home() {
             API Reference
           </Link>
         </li>
-        {/* <li>
-          <Link
-            className="hover:bg-foreground hover:text-background flex items-center justify-center gap-2 rounded-lg px-8 py-4 font-semibold"
-            href="https://github.com/kingmclol/paimons-sticker-stash"
-            target="_blank"
-          >
-            <FaGithub />
-            Github
-          </Link>
-        </li> */}
       </ul>
     </div>
   );

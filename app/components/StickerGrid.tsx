@@ -5,9 +5,15 @@ import ErrorImage from "./ErrorImage";
 import Starrable from "./Starrable";
 import StickerCard from "./StickerCard";
 
-function StickerGrid({ stickers, starredStickerIds, setFavouriteStickerIds }: { stickers: stickers[], starredStickerIds: number[], setFavouriteStickerIds: React.Dispatch<React.SetStateAction<number[]>> }) {
-
-
+function StickerGrid({
+  stickers,
+  starredStickerIds,
+  setFavouriteStickerIds,
+}: {
+  stickers: stickers[];
+  starredStickerIds: number[];
+  setFavouriteStickerIds: React.Dispatch<React.SetStateAction<number[]>>;
+}) {
   function toggleStar(stickerId: number) {
     const sticker = stickers.find((s) => s.id === stickerId);
     if (!sticker) {
@@ -16,10 +22,30 @@ function StickerGrid({ stickers, starredStickerIds, setFavouriteStickerIds }: { 
     }
     if (starredStickerIds.includes(stickerId)) {
       setFavouriteStickerIds((prev) => prev.filter((id) => id !== stickerId));
-      toast.success(`Removed "${sticker.full_title}"`, {id: String(sticker.id)});
+      toast(
+        () => (
+          <span>
+            <span className="font-semibold tracking-wide text-red-600">
+              Removed
+            </span>{" "}
+            {sticker.full_title}
+          </span>
+        ),
+        { id: String(sticker.id) },
+      );
     } else {
       setFavouriteStickerIds((prev) => [...prev, stickerId]);
-      toast.success(`Added "${sticker.full_title}"`, {id: String(sticker.id)});
+      toast(
+        () => (
+          <span>
+            <span className="font-semibold tracking-wide text-green-600">
+              Added
+            </span>{" "}
+            {sticker.full_title}
+          </span>
+        ),
+        { id: String(sticker.id) },
+      );
     }
   }
   if (stickers.length == 0) {

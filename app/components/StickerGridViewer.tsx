@@ -27,12 +27,7 @@ function StickerGridViewer({
   const [favoriteStickerIds, setFavoriteStickerIds] = useLocalStorageState<
     number[]
   >([], "favouriteStickerIds");
-  console.log(favoriteStickerIds);
   const [page, setPage] = useState(1);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [page]);
 
   const filteredStickers = useMemo(() => {
     let filteredStickers = stickers;
@@ -64,7 +59,7 @@ function StickerGridViewer({
   return (
     <div className="grid h-full grid-rows-[auto_1fr]">
       <StickyTop>
-        <div className="mx-auto flex w-4/5 justify-center gap-12">
+        <div className="mx-auto flex justify-center gap-4 sm:w-4/5 sm:gap-12">
           {canSearch && (
             <SearchBar
               onChange={(e) => {
@@ -81,7 +76,8 @@ function StickerGridViewer({
                 Favourites
               </label>
               <input
-                className="h-4 w-4"
+                id="favouritesOnly"
+                className="h-4 w-4 hover:cursor-pointer"
                 type="checkbox"
                 checked={favouritesOnly}
                 onChange={(e) => {

@@ -1,6 +1,6 @@
 function StickyBottom({
   children,
-  extraClasses,
+  extraClasses = "",
 }: {
   children: React.ReactNode;
   extraClasses?: string;

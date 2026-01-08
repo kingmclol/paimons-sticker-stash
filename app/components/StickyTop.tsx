@@ -1,6 +1,6 @@
 function StickyTop({
   children,
-  extraClasses,
+  extraClasses = "",
 }: {
   children: React.ReactNode;
   extraClasses?: string;

@@ -25,7 +25,11 @@ registry.registerPath({
   summary: "Get a single sticker set by ID",
   request: {
     params: z.object({
-      id: z.string().openapi({ example: "1" }),
+      id: z.coerce.number().int().openapi({
+        type: "integer",
+        description: "The ID of the sticker set to retrieve.",
+        example: 1,
+      }),
     }),
   },
   responses: {
@@ -102,7 +106,11 @@ registry.registerPath({
   summary: "Get a single character by ID",
   request: {
     params: z.object({
-      id: z.string().openapi({ example: "1" }),
+      id: z.coerce.number().int().openapi({
+        type: "integer",
+        description: "The ID of the character to retrieve.",
+        example: 1,
+      }),
     }),
   },
   responses: {
@@ -127,7 +135,11 @@ registry.registerPath({
   summary: "Get a single sticker by ID",
   request: {
     params: z.object({
-      id: z.string().openapi({ example: "1" }),
+      id: z.coerce.number().int().openapi({
+        type: "integer",
+        description: "The ID of the sticker to retrieve.",
+        example: 1,
+      }),
     }),
   },
   responses: {
@@ -178,7 +190,8 @@ export function getApiSpec() {
     info: {
       title: "Paimon's Sticker Stash API",
       version: "1.0.0",
-      description: "API for browsing Paimon's Sticker Stash. Sticker database should check for new stickers on Mondays, assuming I didn't mess anything up.\n\nThere is a non-zero chance that I will have to rebuild the entire database due to some... questionable database decisions, meaning that IDs may shuffle. In such a case, if for some reason you need to use the old IDs, check the git history for a previous version of the stickers database.",
+      description:
+        "API for browsing Paimon's Sticker Stash. Sticker database should check for new stickers on Mondays, assuming I didn't mess anything up.\n\nThere is a non-zero chance that I will have to rebuild the entire database due to some... questionable database decisions, meaning that IDs may shuffle. In such a case, if for some reason you need to use the old IDs, check the git history for a previous version of the stickers database.",
     },
     servers: [
       {

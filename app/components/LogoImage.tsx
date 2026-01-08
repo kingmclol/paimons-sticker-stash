@@ -7,6 +7,8 @@ function LogoImage({ size = 256 }: { size?: number }) {
       width={size}
       src="/stickers/set_1/Icon_Emoji_Paimon's_Paintings_01_Paimon_2.webp"
       alt="Paimon: Ship Out!"
+      loading="eager"
+      fetchPriority="high"
     />
   );
 }

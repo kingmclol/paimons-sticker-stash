@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(z.treeifyError(result.error), { status: 400 });
   }
 
-  const { min_stickers } = queryObj;
+  const { min_stickers, query } = queryObj;
 
   try {
     const characters = await prisma.characters
@@ -30,7 +30,12 @@ export async function GET(request: NextRequest) {
       .then((data) =>
         data.filter(
           (character) =>
-            !min_stickers || character.stickers.length >= Number(min_stickers),
+            (!min_stickers ||
+              character.stickers.length >= Number(min_stickers)) &&
+            (!query ||
+              character.name
+                .toLowerCase()
+                .includes(query.toLowerCase())),
         ),
       );
 
