@@ -1,14 +1,13 @@
 "use client";
 
 import { Character } from "@/lib/types";
-import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import CardGrid from "./CardGrid";
 import CharacterCard from "./CharacterCard";
-import SearchBar from "./SearchBar";
-import StickyTop from "./StickyTop";
-import StickyBottom from "./StickyBottom";
 import Pagination from "./Pagination";
+import SearchBar from "./SearchBar";
+import StickyBottom from "./StickyBottom";
+import StickyTop from "./StickyTop";
 
 const pageSize = 50;
 

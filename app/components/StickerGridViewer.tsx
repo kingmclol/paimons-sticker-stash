@@ -1,13 +1,13 @@
 "use client";
 import { Sticker } from "@/lib/types";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import useHasHydrated from "../hooks/useHasHydrated";
 import { useLocalStorageState } from "../hooks/useLocalStorageState";
 import Pagination from "./Pagination";
 import SearchBar from "./SearchBar";
 import StickerGrid from "./StickerGrid";
 import StickyBottom from "./StickyBottom";
 import StickyTop from "./StickyTop";
-import useHasHydrated from "../hooks/useHasHydrated";
 
 const pageSize = 50;
 

@@ -25,8 +25,7 @@ registry.registerPath({
   summary: "Get a single sticker set by ID",
   request: {
     params: z.object({
-      id: z.coerce.number().int().openapi({
-        type: "integer",
+      id: z.coerce.number().int().positive().openapi({
         description: "The ID of the sticker set to retrieve.",
         example: 1,
       }),
@@ -106,8 +105,7 @@ registry.registerPath({
   summary: "Get a single character by ID",
   request: {
     params: z.object({
-      id: z.coerce.number().int().openapi({
-        type: "integer",
+      id: z.coerce.number().int().positive().openapi({
         description: "The ID of the character to retrieve.",
         example: 1,
       }),
@@ -135,8 +133,7 @@ registry.registerPath({
   summary: "Get a single sticker by ID",
   request: {
     params: z.object({
-      id: z.coerce.number().int().openapi({
-        type: "integer",
+      id: z.coerce.number().int().positive().openapi({
         description: "The ID of the sticker to retrieve.",
         example: 1,
       }),
