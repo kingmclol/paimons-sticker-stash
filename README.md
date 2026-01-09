@@ -1,36 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Paimon's Sticker Stash
+![Paimon: Ship out!](public/stickers/set_1/Icon_Emoji_Paimon's_Paintings_01_Paimon_2.webp)
 
-## Getting Started
+[Paimon's Sticker Stash](https://paimons-sticker-stash.netlify.app) is basically a consolidated stash of stickers from the hit video game *Genshin Impact*, scraped from the [Fandom Wiki](https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki). It supports text search for sticker titles, and groups stickers by Paimon's Painting sets and by character.
 
-First, run the development server:
+The Sticker Stash also supports favouriting stickers for quick access (stored in browser LocalStorage), and since stickers are just images, you can copy them to use in messaging software like Discord or whatever. It also (theoretically) supports a [public API](https://paimons-sticker-stash.netlify.app/api) to query sticker data. Or you can just steal `stickers.db` and the `images/stickers` folder from this repository.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Setup
+This repo is a monorepo (?) which contains the Python scraper and the NextJS files for Paimon's Sticker Stash.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The Python scraper is triggered on a schedule via GitHub Actions. The scraper will look for any new stickers in tne latest *numerical* set, updating `stickers.db` database and downloading the images to `images/stickers/set_{name}/{image_name}`, then commit and push changes to the repo. The NextJS frontend and API routes works with `stickers.db` via Prisma ORM to read data from the database.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Frontend (NextJS)
+If for any reason you want to run Paimon's Sticker Stash locally on your machine, simply:
+1. Clone the repository.
+2. Install dependencies with `npm install` or whichever command it was
+3. Generate Prisma ORM client:
+   - Technically, I should've included the `.env` but whatever. Just create one in the project root with `DATABASE_URL="file:./stickers.db"`.
+   - Run `npx prisma generate` to generate the client.
+4. `npm run dev` and it should appear on `localhost:3000`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Python Scraper
+If for any reason you want to run the... *questionably*-built Python scraper held together by hopes and dreams, the files are all located under `scraper`.
+1. Clone the repository.
+2. Install requirements `pip install -r ./scraper/requirements.txt` or something like that
+3. Should be able to run the scraper now.
