@@ -14,7 +14,8 @@ on:
 jobs:
   scrape_and_commit_updates:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
