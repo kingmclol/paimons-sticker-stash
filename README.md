@@ -1,6 +1,8 @@
 # Paimon's Sticker Stash
 ![Paimon: Ship out!](public/stickers/set_1/Icon_Emoji_Paimon's_Paintings_01_Paimon_2.webp)
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/d9804569-fdac-4e4f-ac8a-64f4fc4b142c/deploy-status)](https://app.netlify.com/projects/paimons-sticker-stash/deploys)
+
 [Paimon's Sticker Stash](https://paimons-sticker-stash.netlify.app) is basically a consolidated stash of stickers from the hit video game *Genshin Impact*, scraped from the [Fandom Wiki](https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki). It supports text search for sticker titles, and groups stickers by Paimon's Painting sets and by character.
 
 The Sticker Stash also supports favouriting stickers for quick access (stored in browser LocalStorage), and since stickers are just images, you can copy them to use in messaging software like Discord or whatever. It also (theoretically) supports a [public API](https://paimons-sticker-stash.netlify.app/api) to query sticker data. Or you can just steal `stickers.db` and the `images/stickers` folder from this repository.
