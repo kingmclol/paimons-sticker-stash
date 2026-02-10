@@ -13,6 +13,8 @@ import doctest
 # utils.py located in ROOT/scraper so going back two levels to get to ROOT
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+ENDPOINT = "https://genshin-impact.fandom.com/api.php"
+
 def download_sticker(sticker: Sticker) -> Tuple[str, bool]:
     """
     Downloads the sticker's image to the nextjs public/stickers directory. Returns a tuple with the filePATH (empty if failed)
@@ -36,6 +38,27 @@ def download_sticker(sticker: Sticker) -> Tuple[str, bool]:
         log(f"Failed to download '{sticker.full_title}'")
         return "", False
 
+def get_sticker_set_page_html(set_name: str) -> str:
+    """
+    Gets the HTML content of the sticker set page using the mediawiki api. Returns empty string if something went wrong.
+    """
+    params = {
+        "action": "parse",
+        "page": f"Paimon's_Paintings/Set_{set_name}",
+        "format": "json",
+    }
+    response = requests.get(ENDPOINT, params=params)
+    if response.status_code == 200:
+        data = response.json();
+        if "error" in data:
+            log(f"Error fetching page HTML for set {set_name}: {data['error']['info']}")
+            return ""
+    
+        return data["parse"]["text"]["*"]
+    else:
+        log(f"Failed to fetch page HTML for set {set_name}, recieved error {response.status_code}")
+        return ""
+
 
 def get_sticker_set_url(set_name: str) -> str:
     """
@@ -45,7 +68,7 @@ def get_sticker_set_url(set_name: str) -> str:
     >>> get_sticker_set_url("Set Kiehl's")
     'https://genshin-impact.fandom.com/wiki/Paimon%27s_Paintings/Set_Set_Kiehl%27s'
     """
-    set_name_encoded = urllib.parse.quote(set_name.replace(" ", "_"))
+    set_name_encoded = encode_page_title(set_name)
     return f"https://genshin-impact.fandom.com/wiki/Paimon%27s_Paintings/Set_{set_name_encoded}"
 
 
@@ -117,6 +140,17 @@ def to_iso_date(date_str: str) -> str:
     """
     date_obj = datetime.datetime.strptime(date_str, "%B %d, %Y")
     return date_obj.strftime("%Y-%m-%d")
+
+def encode_page_title(title: str) -> str:
+    """
+    Encodes a page title in the wiki url style
+    >>> encode_page_title("Paimon's Paintings/Set 1")
+    'Paimon%27s_Paintings/Set_1'
+    >>> encode_page_title("Paimon's Paintings/Set Kiehl's")
+    'Paimon%27s_Paintings/Set_Kiehl%27s'
+    """
+    return urllib.parse.quote(title.replace(" ", "_"))
+
 
 if __name__ == "__main__":
     doctest.testmod(verbose=True)

@@ -1,6 +1,7 @@
 from enum import Enum
 import sys
 from time import sleep
+import traceback
 from typing import Tuple
 
 import requests
@@ -46,9 +47,8 @@ def scrape_sticker_set(set_name: str) -> ScrapeResult:
     Scrapes all of the sticker data for the given paimon painting set. Returns False if the scraping was not successful (set does not exist, no stickers uploaded yet, too many unknown title stickers), True otherwise.
     """
     log(f"Attempting to scrape sticker set Set {set_name}...")
-    target_url = get_sticker_set_url(set_name)
-    response = requests.get(target_url)
-    soup = BeautifulSoup(response.text, "html.parser")
+    html = get_sticker_set_page_html(set_name)
+    soup = BeautifulSoup(html, "html.parser")
     num_unknown_title_stickers = 0
 
     # Check if article exists
@@ -123,11 +123,12 @@ def scrape_sticker_set(set_name: str) -> ScrapeResult:
         if not cached:
             sleep(1)
     
+    # TODO: Make it so it would check if release date/main sticker is different from stored, and update if different
     # Scrape some set data
     if sticker_set.main_sticker_id is None:
         # Attempt to get main sticker
         log(f"Set {set_name} has no main sticker, attempting to get...")
-        sticker_set_main_sticker_id = _get_sticker_set_main_sticker_id(set_name)
+        sticker_set_main_sticker_id = _get_sticker_set_main_sticker_id(soup)
         sticker_set.main_sticker_id = sticker_set_main_sticker_id
     if sticker_set.release_date is None:
         # Attempt to get release date
@@ -163,31 +164,30 @@ def _get_set_release_date(soup: BeautifulSoup) -> str | None:
     return release_date_iso
 
 
-def _get_sticker_set_main_sticker_id(set_name: str) -> int | None:
+def _get_sticker_set_main_sticker_id(soup: BeautifulSoup) -> int | None:
     """
     Returns the main sticker ID for the given sticker set, if one is assigned.
     """
-    url = "https://genshin-impact.fandom.com/wiki/Paimon%27s_Paintings/Sets"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
-    image = soup.find("img", alt=f"Set {set_name}")
+    infobox_title = soup.find("h2", class_ = "pi-title")
+    image = infobox_title.find("img") if infobox_title is not None else None
+
     if image is None:
-        log(f"WARN: Failed to get main sticker for Set {set_name}: Could not find image")
+        log(f"WARN: Failed to get main sticker for, could not find image")
         return None
 
     image_source_url = str(image["src"])
     image_source_url_clean = extract_sticker_original_image_url(image_source_url)
 
     if (image_source_is_unknown_image(image_source_url_clean)):
-        log(f"Set {set_name} has no main sticker assigned.")
+        log(f"Target set has no main sticker assigned.")
         return None
     
     sticker = get_sticker_by_source_url(image_source_url_clean)
     if sticker is None:
-        log(f"WARN: Failed to get main sticker for Set {set_name}: Could not find sticker in database")
+        log(f"WARN: Failed to get main sticker: Could not find sticker in database")
         return None
     
-    log(f"Set {set_name} main sticker is {sticker.full_title} (ID {sticker.id})")
+    log(f"Main sticker is {sticker.full_title} (ID {sticker.id})")
     return sticker.id
 
 
@@ -323,5 +323,6 @@ if __name__ == "__main__":
                 sys.exit(1)
     except Exception as e:
         log(f"ERROR: Aborting scrape: {e}")
+        print(traceback.format_exc())
         sys.exit(1)
         

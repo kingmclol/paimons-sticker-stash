@@ -148,7 +148,13 @@ def update_character(character: Character):
     """
     Updates an existing character in the database
     """
+    if character.id is None:
+        return
+    current_character = get_character_by_id(character.id)
+    if current_character is None or current_character != character:
+        return
     with get_connection() as conn:
+        
         c = conn.cursor()
         c.execute("""
         UPDATE characters
@@ -209,6 +215,11 @@ def update_sticker(sticker: Sticker):
     """
     Updates an existing sticker in the database
     """
+    if sticker.id is None:
+        return
+    current_sticker = get_sticker_by_id(sticker.id)
+    if current_sticker is None or current_sticker != sticker:
+        return
     with get_connection() as conn:
         c = conn.cursor()
         c.execute("""
@@ -336,6 +347,11 @@ def update_sticker_set(sticker_set: StickerSet):
     """
     Updates an existing sticker set in the database
     """
+    if sticker_set.id is None:
+        return
+    current_sticker_set = get_sticker_set_by_id(sticker_set.id)
+    if current_sticker_set is None or current_sticker_set != sticker_set:
+        return
     with get_connection() as conn:
         c = conn.cursor()
         c.execute("""
