@@ -218,7 +218,7 @@ def update_sticker(sticker: Sticker):
     if sticker.id is None:
         return
     current_sticker = get_sticker_by_id(sticker.id)
-    if current_sticker is None or current_sticker != sticker:
+    if current_sticker is None:
         return
     with get_connection() as conn:
         c = conn.cursor()

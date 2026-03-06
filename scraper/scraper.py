@@ -212,7 +212,7 @@ def _update_sticker_db(sticker: Sticker) -> Tuple[Sticker, Character]:
     # Quick check if the full sticker title was updated. Thanks Columbina.
     assert saved_sticker is not None
     if (saved_sticker.full_title != sticker.full_title):
-        log(f"WARN: Sticker title mismatch: '{sticker.full_title}' (current) vs '{saved_sticker.full_title}' (saved). Using current title.")
+        log(f"WARN: Sticker title mismatch: '{sticker.full_title}' (new) vs '{saved_sticker.full_title}' (saved). Using new title.")
         update_sticker(sticker)
 
     # sticker now has all data
