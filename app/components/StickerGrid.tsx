@@ -2,8 +2,10 @@
 import toast from "react-hot-toast";
 import { stickers } from "../generated/prisma/client";
 import ErrorImage from "./ErrorImage";
-import Starrable from "./Starrable";
 import StickerCard from "./StickerCard";
+import Star from "./Star";
+import StickerActions from "./StickerActions";
+import CopyStickerButton from "./CopyStickerButton";
 
 function StickerGrid({
   stickers,
@@ -58,10 +60,24 @@ function StickerGrid({
       </div>
     );
   }
-
   return (
     <div className="grid auto-rows-min grid-cols-2 items-start gap-2 overflow-auto p-2 sm:grid-cols-3 lg:grid-cols-4">
       {stickers.map((sticker) => (
+        <StickerCard
+          key={sticker.id}
+          sticker={sticker}
+          actions={
+            <StickerActions>
+              <CopyStickerButton sticker={sticker}/>
+              <Star
+                onClick={() => toggleStar(sticker.id)}
+                isStarred={starredStickerIds.includes(sticker.id)}
+              />
+            </StickerActions>
+          }
+        />
+      ))}
+      {/* {stickers.map((sticker) => (
         <Starrable
           key={sticker.id}
           isStarred={starredStickerIds.includes(sticker.id)}
@@ -69,7 +85,7 @@ function StickerGrid({
         >
           <StickerCard sticker={sticker} />
         </Starrable>
-      ))}
+      ))} */}
     </div>
   );
 }

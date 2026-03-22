@@ -10,11 +10,15 @@ function Star({
   onClick: () => void;
 }) {
   return (
-    <button onClick={onClick} aria-label={isStarred ? "Unstar" : "Star"}>
+    <button
+      className="bg-background flex items-center justify-center rounded-lg opacity-80 hover:cursor-pointer hover:opacity-100"
+      onClick={onClick}
+      aria-label={isStarred ? "Unstar" : "Star"}
+    >
       {isStarred ? (
-        <HiStar className="hover:cursor-pointer" color="gold" size={size} />
+        <HiStar color="gold" size={size} />
       ) : (
-        <HiOutlineStar className="hover:cursor-pointer" size={size} />
+        <HiOutlineStar size={size} />
       )}
     </button>
   );

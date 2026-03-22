@@ -1,5 +1,6 @@
 import Star from "./Star";
 
+// Currently unused prefer using StickerActions instead
 function Starrable({
   children,
   isStarred,
@@ -15,7 +16,7 @@ function Starrable({
     <div className="group relative">
       {children}
       <div
-        className={`absolute top-2 right-2 ${showOnlyOnHover ? "hidden group-hover:block" : "opacity-90 hover:opacity-100"}`}
+        className={`absolute top-2 right-2 bg-background rounded-xl flex items-center justify-center ${showOnlyOnHover ? "hidden group-hover:block" : "opacity-80 hover:opacity-100"}`}
       >
         <Star onClick={onClick} isStarred={isStarred} />
       </div>
