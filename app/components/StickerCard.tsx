@@ -1,10 +1,16 @@
 import Image from "next/image";
 import { stickers } from "../generated/prisma/client";
 
-function StickerCard({ sticker }: { sticker: stickers }) {
+function StickerCard({
+  sticker,
+  actions,
+}: {
+  sticker: stickers;
+  actions?: React.ReactNode;
+}) {
   return (
     <div
-      className="relative flex flex-col items-center justify-center gap-2"
+      className="group relative flex flex-col items-center justify-center gap-2"
       key={sticker.id}
     >
       <div className="relative">
@@ -19,6 +25,7 @@ function StickerCard({ sticker }: { sticker: stickers }) {
         </div>
       </div>
       <p className="text-center font-bold">{sticker.full_title}</p>
+      {actions}
     </div>
   );
 }
