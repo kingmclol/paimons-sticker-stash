@@ -48,7 +48,10 @@ export function formatDate(date: Date | null | undefined): string {
  * @returns The encoded string
  */
 export function encodeForURL(str: string): string {
-  return encodeURIComponent(str.replaceAll(" ", "_"));
+  return encodeURIComponent(str.replaceAll(" ", "_")).replace(
+    /[!'()*]/g,
+    (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
+  );
 }
 
 /**
@@ -58,4 +61,21 @@ export function encodeForURL(str: string): string {
  */
 export function decodeFromURL(str: string): string {
   return decodeURIComponent(str.replaceAll("_", " "));
+}
+
+/**
+ * Get the base URL for the website.
+ * First checks for NEXT_PUBLIC_BASE_URL, then for URL (for Netlify) and defaults to http://localhost:3000
+ * if neither is set.
+ * @returns The base URL for the website
+ */
+export function getBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    // manual override
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  } else if (process.env.URL) {
+    // for netfliy
+    return process.env.URL;
+  }
+  return "http://localhost:3000"; // local
 }

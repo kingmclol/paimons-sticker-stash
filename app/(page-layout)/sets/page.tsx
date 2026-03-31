@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 import Card from "../../components/Card";
 import PageHeader from "../../components/PageHeader";
 import StickerSetCard from "../../components/StickerSetCard";
-import CardGrid from "../../components/CardGrid";
 
 async function page() {
   const stickerSets = await prisma.sticker_sets.findMany();

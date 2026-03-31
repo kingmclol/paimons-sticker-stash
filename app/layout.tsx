@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { getBaseUrl } from "./utils/utils";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,8 +17,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getBaseUrl()),
   title: "Paimon's Sticker Stash",
   description: "Gallery of stickers from Genshin Impact",
+  alternates: {
+    canonical: "/",
+  }
 };
 
 export default function RootLayout({

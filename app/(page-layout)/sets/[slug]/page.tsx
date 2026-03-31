@@ -3,9 +3,9 @@ import StickerGridViewer from "@/app/components/StickerGridViewer";
 import { decodeFromURL, formatDate } from "@/app/utils/utils";
 import prisma from "@/lib/prisma";
 
-async function page({ params }: { params: { name: string } }) {
-  const { name } = await params;
-  const decodedName = decodeFromURL(name);
+async function page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const decodedName = decodeFromURL(slug);
   const stickerSet = await prisma.sticker_sets.findUnique({
     where: { name: decodedName },
   });
