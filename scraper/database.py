@@ -350,7 +350,7 @@ def update_sticker_set(sticker_set: StickerSet):
     if sticker_set.id is None:
         return
     current_sticker_set = get_sticker_set_by_id(sticker_set.id)
-    if current_sticker_set is None or current_sticker_set != sticker_set:
+    if current_sticker_set is None or current_sticker_set == sticker_set:
         return
     with get_connection() as conn:
         c = conn.cursor()
