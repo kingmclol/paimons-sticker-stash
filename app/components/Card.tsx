@@ -10,7 +10,7 @@ function Card({
   id,
   children
 }: {
-  imageSrc: string;
+  imageSrc?: string | null;
   subtext?: string;
   href?: string;
   title: string;
@@ -20,7 +20,7 @@ function Card({
   const content = (
     <>
       <Image
-        src={imageSrc}
+        src={imageSrc || "/Item_Unknown.webp"}
         height={128}
         width={128}
         alt={title}

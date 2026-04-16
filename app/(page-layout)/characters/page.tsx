@@ -1,16 +1,24 @@
 import CharacterCardGrid from "@/app/components/CharacterCardGrid";
 import PageHeader from "@/app/components/PageHeader";
 import prisma from "@/lib/prisma";
+import { Character } from "@/lib/types";
 
 async function page() {
-  const characters = await prisma.characters.findMany({
-    include: {
-      main_sticker: true,
-      _count: {
-        select: { stickers: true },
+  const characters: Character[] = await prisma.characters
+    .findMany({
+      include: {
+        main_sticker: true,
+        _count: {
+          select: { stickers: true },
+        },
       },
-    },
-  });
+    })
+    .then((characters) =>
+      characters.map((char) => ({
+        ...char,
+        num_stickers: char._count.stickers,
+      })),
+    );
 
   const sticker = await prisma.stickers.findUnique({
     where: { id: 31 }, // Venti: Falling Petals
@@ -23,10 +31,7 @@ async function page() {
         sticker={sticker}
       />
       <CharacterCardGrid
-        characters={characters.map((char) => ({
-          ...char,
-          num_stickers: char._count.stickers,
-        }))}
+        characters={characters}
       />
     </>
   );

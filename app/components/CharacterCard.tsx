@@ -6,7 +6,7 @@ function CharacterCard({ character }: { character: Character }) {
   return (
     <Card
       title={character.name}
-      imageSrc={character.main_sticker?.filepath ?? "/Item_Unknown.webp"}
+      imageSrc={character?.main_sticker?.filepath}
       href={`/characters/${encodeForURL(character.name)}`}
       id={character.id}
     >

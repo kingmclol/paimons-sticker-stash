@@ -8,6 +8,7 @@ import {
 import { convertToPng } from "../utils/utils";
 
 // Can probably merge with Star into generic StickerAction which has a render prop and own click handler
+// TODO: add better UI indication if filepath not exist (or use the image source url instead, althought then resizing won't be possible using next image)
 
 function CopyStickerButton({
   sticker,
@@ -21,6 +22,9 @@ function CopyStickerButton({
   const [copied, setCopied] = useState(false);
   const handleClick = async () => {
     try {
+      if (!sticker.filepath) {
+        throw new Error("Sticker image not found..?");
+      }
       const response = await fetch(sticker.filepath);
       let blob = await response.blob();
       if (!ClipboardItem.supports(blob.type)) {

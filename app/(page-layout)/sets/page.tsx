@@ -2,9 +2,25 @@ import prisma from "@/lib/prisma";
 import Card from "../../components/Card";
 import PageHeader from "../../components/PageHeader";
 import StickerSetCard from "../../components/StickerSetCard";
+import { StickerSet } from "@/lib/types";
 
 async function page() {
-  const stickerSets = await prisma.sticker_sets.findMany();
+  const stickerSets: StickerSet[] = await prisma.sticker_sets
+    .findMany({
+      include: {
+        main_sticker: true,
+        _count: {
+          select: { stickers: true },
+        },
+      },
+    })
+    .then((sets) =>
+      sets.map((set) => ({
+        ...set,
+        num_stickers: set._count.stickers,
+      })),
+    );
+
   const pageSticker = await prisma.stickers.findUnique({
     where: { id: 134 }, // Kokomi: Laid-Back
   });

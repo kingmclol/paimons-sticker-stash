@@ -1,20 +1,9 @@
-import prisma from "@/lib/prisma";
-import { sticker_sets } from "../generated/prisma/client";
 import { encodeForURL, formatDate } from "../utils/utils";
 import Card from "./Card";
+import { StickerSet } from "@/lib/types";
 
-async function StickerSetCard({ stickerSet }: { stickerSet: sticker_sets }) {
-  let image;
+async function StickerSetCard({ stickerSet }: { stickerSet: StickerSet }) {
   let releaseDate;
-  const main_sticker = await prisma.stickers.findUnique({
-    where: { id: stickerSet.main_sticker_id ?? undefined },
-  });
-  if (!main_sticker) {
-    // Somehow no main sticker assigned, so use unknown image
-    image = "/Item_Unknown.webp";
-  } else {
-    image = main_sticker.filepath;
-  }
 
   if (!stickerSet.release_date) {
     releaseDate = "Unknown";
@@ -24,7 +13,7 @@ async function StickerSetCard({ stickerSet }: { stickerSet: sticker_sets }) {
 
   return (
     <Card
-      imageSrc={image}
+      imageSrc={stickerSet?.main_sticker?.filepath}
       title={`Set ${stickerSet.name}`}
       href={`/sets/${encodeForURL(stickerSet.name)}`}
       id={stickerSet.id}
