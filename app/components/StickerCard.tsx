@@ -17,7 +17,7 @@ function StickerCard({
         <Image
           width={256}
           height={256}
-          src={sticker.filepath}
+          src={sticker.filepath || "/Item_Unknown.webp"}
           alt={sticker.full_title}
         />
         <div className="bg-background absolute right-2 bottom-1 rounded px-1 text-sm opacity-75">

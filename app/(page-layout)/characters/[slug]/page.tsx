@@ -23,9 +23,9 @@ async function page({ params }: { params: Promise<{ slug: string }> }) {
     );
   }
 
-  const sticker = await prisma.stickers.findUnique({
-    where: { id: character?.main_sticker_id || undefined },
-  });
+  const sticker = character.main_sticker_id ? await prisma.stickers.findUnique({
+    where: { id: character.main_sticker_id },
+  }) : null;
   const stickers = await prisma.stickers.findMany({
     where: {
       character_id: character?.id || undefined,
