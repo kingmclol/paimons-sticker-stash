@@ -7,7 +7,6 @@ from typing import Tuple
 import urllib.parse
 import requests
 import datetime
-from Entities import Sticker
 import doctest
 
 # utils.py located in ROOT/scraper so going back two levels to get to ROOT
@@ -15,28 +14,34 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ENDPOINT = "https://genshin-impact.fandom.com/api.php"
 
-def download_sticker(sticker: Sticker) -> Tuple[str, bool]:
+def download_sticker(image_url_source: str, set_name: str) -> Tuple[str | None, bool]:
     """
-    Downloads the sticker's image to the nextjs public/stickers directory. Returns a tuple with the filePATH (empty if failed)
+    Downloads the sticker's image to the nextjs public/stickers directory. Returns a tuple with the filePATH (None if failed)
     and whether it was a cached download (already in computer so skipped downloading from source).
     """
-    log(f"Downloading '{sticker.full_title}' (set {sticker.set_name})...")
     os.makedirs(f"{PROJECT_ROOT}/public/stickers", exist_ok=True)  # Ensure the directory exists
-    response = requests.get(sticker.image_url_source)
-    if response.status_code == 200:
-        os.makedirs(f"{PROJECT_ROOT}/public/stickers/set_{sticker.set_name}", exist_ok=True)  # Ensure the set directory exists
-        if os.path.exists(f"{PROJECT_ROOT}/public/stickers/set_{sticker.set_name}/{sticker.filename}"):
-            # If for some reason it already exists, skip.
-            log(f"File {sticker.filename} already exists, skipping download.")
-            return f"/stickers/set_{sticker.set_name}/{sticker.filename}", True
 
-        with open(f"{PROJECT_ROOT}/public/stickers/set_{sticker.set_name}/{sticker.filename}", "wb") as f:
+    filename=extract_filename(image_url_source)
+
+    response = requests.get(image_url_source)
+    if response.status_code == 200:
+        os.makedirs(f"{PROJECT_ROOT}/public/stickers/set_{set_name}", exist_ok=True)  # Ensure the set directory exists
+        if os.path.exists(f"{PROJECT_ROOT}/public/stickers/set_{set_name}/{filename}"):
+            # If for some reason it already exists, skip.
+            return construct_filepath(set_name, filename), True
+
+        with open(f"{PROJECT_ROOT}/public/stickers/set_{set_name}/{filename}", "wb") as f:
             f.write(response.content)
-        log(f"Downloaded '{sticker.full_title}' as {sticker.filename}")
-        return f"/stickers/set_{sticker.set_name}/{sticker.filename}", False
+        return construct_filepath(set_name, filename), False
     else:
-        log(f"Failed to download '{sticker.full_title}'")
-        return "", False
+        return None, False
+
+
+def construct_filepath(set_name: str, filename: str) -> str:
+    """
+    Constructs local filepath to sticker image from public
+    """
+    return f"/stickers/set_{set_name}/{filename}"
 
 def get_sticker_set_page_html(set_name: str) -> str:
     """

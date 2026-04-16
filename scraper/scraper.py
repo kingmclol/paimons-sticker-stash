@@ -114,7 +114,14 @@ def scrape_sticker_set(set_name: str) -> ScrapeResult:
             filename=filename
         )
         # download sticker
-        filepath, cached = download_sticker(sticker)
+        log(f"Downloading '{sticker.full_title}' (set {set_name})...")
+        filepath, cached = download_sticker(image_source_original, sticker.set_name)
+        if cached:
+            log(f"File {filename} already exists, skipping download.")
+        elif filepath is None:
+            log(f"WARN: Failed to download image for sticker '{sticker.full_title}'. Filepath is empty, check manually later.")
+        else: 
+            log(f"Downloaded '{sticker.full_title}' as {filename}")
         sticker.filepath = filepath
 
         sticker, character = _update_sticker_db(sticker)
@@ -197,12 +204,17 @@ def _update_sticker_db(sticker: Sticker) -> Tuple[Sticker, Character]:
     """
     # Check if this is first-time character
     first_time_character = not character_exists_by_name(sticker.character)
-    character = Character(name=sticker.character)
-    character_id = create_character(character)
-    character.id = character_id
+    if (first_time_character):
+        log(f"Character '{sticker.character}' not found in database, creating new entry...")
+        character = Character(name=sticker.character)
+        character_id = create_character(character)
+        character.id = character_id
+    else:
+        character = get_character_by_name(sticker.character)
+        assert character is not None
 
     # Set up sticker foreign key
-    sticker.character_id = character_id
+    sticker.character_id = character.id
     sticker_id = create_sticker(sticker)
 
     saved_sticker = get_sticker_by_id(sticker_id)
@@ -218,11 +230,11 @@ def _update_sticker_db(sticker: Sticker) -> Tuple[Sticker, Character]:
     # sticker now has all data
 
     # If first time character, set main sticker as given sticker
-    if first_time_character:
+    if first_time_character or character.main_sticker_id is None:
         character.main_sticker_id = sticker_id
         update_character(character)
-        log(f"New character: {character.name}")
-    
+        log(f"Updated main sticker for character {character.name} to {sticker.full_title}")
+
     # now character has all data
     return sticker, character
 

@@ -43,7 +43,7 @@ def initialize_database():
             full_title TEXT NOT NULL,
             image_url_source TEXT NOT NULL UNIQUE,
             filename TEXT NOT NULL UNIQUE,
-            filepath TEXT NOT NULL UNIQUE,
+            filepath TEXT UNIQUE,
             FOREIGN KEY (character_id) REFERENCES characters(id),
             FOREIGN KEY (set_id) REFERENCES sticker_sets(id)
         );
@@ -151,7 +151,7 @@ def update_character(character: Character):
     if character.id is None:
         return
     current_character = get_character_by_id(character.id)
-    if current_character is None or current_character != character:
+    if current_character is None or current_character == character:
         return
     with get_connection() as conn:
         
@@ -206,8 +206,9 @@ def get_sticker_by_id(id: int) -> Sticker | None:
                 set_id=row["set_id"],
                 set_name=sticker_set.name,
                 id=row["id"],
+                filepath=row["filepath"],
                 character_id=row["character_id"],
-                filename=row["filename"]
+                filename=row["filename"],
             )
         return None
 
@@ -218,7 +219,7 @@ def update_sticker(sticker: Sticker):
     if sticker.id is None:
         return
     current_sticker = get_sticker_by_id(sticker.id)
-    if current_sticker is None:
+    if current_sticker is None or current_sticker == sticker:
         return
     with get_connection() as conn:
         c = conn.cursor()
@@ -252,6 +253,7 @@ def get_stickers_by_character_id(character_id: int) -> list[Sticker]:
                 set_id=row["set_id"],
                 set_name=sticker_set.name,
                 id=row["id"],
+                filepath=row["filepath"],
                 character_id=row["character_id"],
                 filename=row["filename"]
             ))
@@ -288,6 +290,7 @@ def get_sticker_by_source_url(image_url_source: str) -> Sticker | None:
                 set_id=row["set_id"],
                 set_name=sticker_set.name,
                 id=row["id"],
+                filepath=row["filepath"],
                 character_id=row["character_id"],
                 filename=row["filename"]
             )

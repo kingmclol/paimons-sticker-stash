@@ -24,7 +24,7 @@ class Sticker:
     set_id: int
     set_name: str
     filename: str
-    filepath: str
+    filepath: str | None
     id: int | None
     character_id: int | None
 
@@ -35,6 +35,7 @@ class Sticker:
                  set_id: int,
                  set_name: str,
                  filename: str,
+                 filepath: str | None = None,
                  id: int | None = None,
                  character_id: int | None = None):
         self.title = title
@@ -43,7 +44,7 @@ class Sticker:
         self.full_title = f"{character}: {title}"
         self.set_id = set_id
         self.filename = filename
-        self.filepath = ""
+        self.filepath = filepath
         self.id = id
         self.character_id = character_id
         self.set_name = set_name
@@ -56,6 +57,18 @@ class Sticker:
                 f" set_name={self.set_name},"
                 f" set_id={self.set_id},"
                 f" image_url_source={self.image_url_source})")
+    
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Sticker):
+            return False
+        return (self.title == other.title and
+                self.image_url_source == other.image_url_source and
+                self.filepath == other.filepath and
+                self.filename == other.filename and
+                self.full_title == other.full_title and
+                self.set_id == other.set_id and
+                self.character_id == other.character_id
+                )
 
 
 class Character:
@@ -87,6 +100,13 @@ class Character:
                 f" name={self.name},"
                 f" description={self.description},"
                 f" main_sticker_id={self.main_sticker_id})")
+    
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Character):
+            return False
+        return (self.name == other.name and
+                self.description == other.description and
+                self.main_sticker_id == other.main_sticker_id)
 
 class StickerSet:
     """
@@ -116,4 +136,11 @@ class StickerSet:
                 f" name={self.name},"
                 f" main_sticker_id={self.main_sticker_id},"
                 f" release_date={self.release_date})")
+    
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, StickerSet):
+            return False
+        return (self.name == other.name and
+                self.main_sticker_id == other.main_sticker_id and
+                self.release_date == other.release_date)
     
