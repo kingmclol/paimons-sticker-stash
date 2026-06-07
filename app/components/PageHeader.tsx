@@ -15,7 +15,7 @@ function PageHeader({
   description: string;
 }) {
   return (
-    <div className="flex gap-8 p-8 items-center">
+    <div className="flex flex-wrap items-center justify-center gap-4 pb-8 md:flex-nowrap md:justify-start md:gap-8 md:p-8">
       <div className="flex-none rounded-2xl border-2 p-2">
         <Image
           src={sticker?.filepath ?? imageSrc ?? "/Item_Unknown.webp"}
@@ -25,7 +25,9 @@ function PageHeader({
         />
       </div>
       <div className="flex flex-col justify-around gap-4">
-        <h1 className="text-4xl font-bold tracking-wide underline">{title}</h1>
+        <h1 className="text-center text-4xl font-bold tracking-wide underline md:text-left">
+          {title}
+        </h1>
         {<p>{description}</p>}
       </div>
     </div>
