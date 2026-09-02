@@ -27,11 +27,12 @@ jobs:
       - name: install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r scraper/requirements.txt
+          pip install -r scripts/scraper/requirements.txt
 
       - name: run scraper
+        working-directory: ./scripts/scraper
         run: |
-          python scraper/scraper.py
+          python main.py --current
 
       - name: commit and push changes
         run: |
@@ -39,7 +40,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add --all
           if [ -n "$(git status --porcelain)" ]; then
-            git commit -m "Sticker DB update"
+            git commit -m "Sticker database update"
             git push origin main
           else
             echo "No changes to commit"

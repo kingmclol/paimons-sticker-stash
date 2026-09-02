@@ -1,4 +1,3 @@
-from enum import Enum
 import sys
 from time import sleep
 import traceback
@@ -10,62 +9,52 @@ from bs4 import BeautifulSoup
 from utils import *
 from database import *
 from Entities import *
+from enums import *
+from models import ScrapeOutcome
 import doctest
 
-# The number of stickers with unknown titles to allow before aborting the scrape and throwing an error. 
+# The number of stickers with unknown titles to allow before aborting the scrape and throwing an error.
 # Set to -1 to disable.
-MAX_UNKNOWN_TITLE_STICKERS_ABORT = -1;
+MAX_UNKNOWN_TITLE_STICKERS_ABORT = -1
 
 # The max number of stickers with unknown titles for the scrape to be considered to be successful. High amounts of unknown titles indicates that the set has not added complete data yet.
 MAX_UNKNOWN_TITLE_STICKERS_SUCCESSFUL = 3
 
-# In hindsight, I don't think this is going to scale well
-class ScrapeResult(Enum):
-    SUCCESS = 0
-    FAILURE_NO_DATA = 1
-    FAILURE = 2
-    FAILURE_TOO_MANY_MISSING_TITLES = 3
-    SUCCESS_MISSING_TITLES = 4
 
-    @property
-    def is_failure(self):
-        return self in {
-            ScrapeResult.FAILURE,
-            ScrapeResult.FAILURE_NO_DATA,
-            ScrapeResult.FAILURE_TOO_MANY_MISSING_TITLES,
-        }
-    
-    @property
-    def is_success(self):
-        return self in {
-            ScrapeResult.SUCCESS,
-            ScrapeResult.SUCCESS_MISSING_TITLES,
-        }
-
-def scrape_sticker_set(set_name: str) -> ScrapeResult:
+def scrape_sticker_set(set_name: str) -> ScrapeOutcome:
     """
     Scrapes all of the sticker data for the given paimon painting set. Returns False if the scraping was not successful (set does not exist, no stickers uploaded yet, too many unknown title stickers), True otherwise.
     """
     log(f"Attempting to scrape sticker set Set {set_name}...")
     html = get_sticker_set_page_html(set_name)
     soup = BeautifulSoup(html, "html.parser")
-    num_unknown_title_stickers = 0
+
+    scrape_outcome = ScrapeOutcome(
+        set_name=set_name
+    )
+
 
     # Check if article exists
     if soup.find("div", class_="noarticletext") is not None:
         log(f"Set {set_name} does not exist.")
-        return ScrapeResult.FAILURE_NO_DATA
-    
+        scrape_outcome.result = ScrapeResult.FAILURE_NO_DATA
+        return scrape_outcome
+
     # Check if sticker gallery exists and has stickers
     gallery = soup.find("div", id="gallery-0")
     if gallery is None:
         log(f"Set {set_name} does not exist.")
-        return ScrapeResult.FAILURE_NO_DATA
-    
+        scrape_outcome.result = ScrapeResult.FAILURE_NO_DATA
+        return scrape_outcome
+
     cells = gallery.find_all("div", class_="wikia-gallery-item")
-    if len(cells) == 0 or gallery.find("div", id="No_images_match_the_selection_criteria-") is not None:
+    if (
+        len(cells) == 0
+        or gallery.find("div", id="No_images_match_the_selection_criteria-") is not None
+    ):
         log(f"Set {set_name} appears to exist but no stickers were uploaded yet.")
-        return ScrapeResult.FAILURE_NO_DATA
+        scrape_outcome.result = ScrapeResult.FAILURE_NO_DATA
+        return scrape_outcome
 
     # Handle sticker set access/creationg
     sticker_set = get_sticker_set_by_name(set_name)
@@ -87,22 +76,25 @@ def scrape_sticker_set(set_name: str) -> ScrapeResult:
         image_source_original = extract_sticker_original_image_url(str(image["src"]))
 
         cell_caption = cell.find("div", class_="lightbox-caption")
-       
+
         assert cell_caption is not None
         character, title = _extract_character_and_title(cell_caption)
 
-
         # Empty Title check
         if title == "Unknown":
-            num_unknown_title_stickers += 1
+            scrape_outcome.num_missing_title += 1
 
             # Abort if enough stickers have no titles, if set (pun intended)
             if MAX_UNKNOWN_TITLE_STICKERS_ABORT != -1:
-                log(f"WARN: {num_unknown_title_stickers} out of max {MAX_UNKNOWN_TITLE_STICKERS_ABORT} allowed unknown sticker titles encountered.")
-                if num_unknown_title_stickers > MAX_UNKNOWN_TITLE_STICKERS_ABORT:
-                    log(f"Exceeded maximum unknown title stickers for set {set_name}, aborting scrape.")
-                    return ScrapeResult.FAILURE_TOO_MANY_MISSING_TITLES
-        
+                log(
+                    f"WARN: {scrape_outcome.num_missing_title} out of max {MAX_UNKNOWN_TITLE_STICKERS_ABORT} allowed unknown sticker titles encountered."
+                )
+                if scrape_outcome.num_missing_title > MAX_UNKNOWN_TITLE_STICKERS_ABORT:
+                    log(
+                        f"Exceeded maximum unknown title stickers for set {set_name}, aborting scrape."
+                    )
+                    scrape_outcome.result = ScrapeResult.FAILURE_TOO_MANY_MISSING_TITLES
+                    return scrape_outcome
 
         filename = extract_filename(image_source_original)
         sticker = Sticker(
@@ -111,25 +103,34 @@ def scrape_sticker_set(set_name: str) -> ScrapeResult:
             image_url_source=image_source_original,
             set_name=set_name,
             set_id=sticker_set.id,
-            filename=filename
+            filename=filename,
         )
         # download sticker
         log(f"Downloading '{sticker.full_title}' (set {set_name})...")
-        filepath, cached = download_sticker(image_source_original, sticker.set_name)
+        download_result = download_sticker(sticker)
+
+        cached = download_result == DownloadResult.SKIPPED_ALREADY_EXISTS
         if cached:
             log(f"File {filename} already exists, skipping download.")
-        elif filepath is None:
-            log(f"WARN: Failed to download image for sticker '{sticker.full_title}'. Filepath is empty, check manually later.")
-        else: 
+            scrape_outcome.num_success += 1
+        elif download_result == DownloadResult.FAILURE:
+            scrape_outcome.num_failure += 1
+            log(
+                f"WARN: Failed to download image for sticker '{sticker.full_title}'."
+            )
+        else:
+            scrape_outcome.num_success += 1
             log(f"Downloaded '{sticker.full_title}' as {filename}")
-        sticker.filepath = filepath
+
 
         sticker, character = _update_sticker_db(sticker)
-        log(f"Processed '{sticker.full_title}' (ID {sticker.id}) | {character.name} (ID {character.id}) | cached: {cached}")
+        log(
+            f"Processed '{sticker.full_title}' (ID {sticker.id}) | {character.name} (ID {character.id}) | cached: {cached}"
+        )
 
         if not cached:
             sleep(1)
-    
+
     # TODO: Make it so it would check if release date/main sticker is different from stored, and update if different
     # Scrape some set data
     if sticker_set.main_sticker_id is None:
@@ -142,19 +143,27 @@ def scrape_sticker_set(set_name: str) -> ScrapeResult:
         log(f"Set {set_name} has no release date, attempting to get...")
         release_date = _get_set_release_date(soup)
         sticker_set.release_date = release_date
-    
+
     update_sticker_set(sticker_set)
 
     log(f"Finished scraping sticker set {set_name}.")
-    if num_unknown_title_stickers > MAX_UNKNOWN_TITLE_STICKERS_SUCCESSFUL:
-        log(f"WARN: Set {set_name} had {num_unknown_title_stickers} stickers with unknown titles. Scrape is only partially successful, likely due to incomplete source data. Will not be marked as latest set.")
-        return ScrapeResult.SUCCESS_MISSING_TITLES
-    return ScrapeResult.SUCCESS
+    if scrape_outcome.num_missing_title > MAX_UNKNOWN_TITLE_STICKERS_SUCCESSFUL:
+        log(
+            f"WARN: Set {set_name} had {scrape_outcome.num_missing_title} stickers with unknown titles (>{MAX_UNKNOWN_TITLE_STICKERS_SUCCESSFUL}). Scrape is only partially successful, likely due to incomplete source data."
+        )
+        scrape_outcome.result = ScrapeResult.SUCCESS_MISSING_TITLES
+        return scrape_outcome
+
+    scrape_outcome.result = ScrapeResult.SUCCESS
+    return scrape_outcome
 
 
 def _get_set_release_date(soup: BeautifulSoup) -> str | None:
-    release_date_section = soup.find(lambda tag: tag.name == "section" and tag.find("th", class_="pi-data-label", string="Release Date") is not None)
-    
+    release_date_section = soup.find(
+        lambda tag: tag.name == "section"
+        and tag.find("th", class_="pi-data-label", string="Release Date") is not None
+    )
+
     if release_date_section is None:
         log(f"WARN: Failed to get release date: No section")
         return None
@@ -162,7 +171,7 @@ def _get_set_release_date(soup: BeautifulSoup) -> str | None:
     if release_date_box is None:
         log(f"WARN: Failed to get release date: No data value")
         return None
-    
+
     release_date = release_date_box.find(string=True, recursive=False)
     # release date is like January 1, 2026 format.
     assert release_date is not None
@@ -175,7 +184,7 @@ def _get_sticker_set_main_sticker_id(soup: BeautifulSoup) -> int | None:
     """
     Returns the main sticker ID for the given sticker set, if one is assigned.
     """
-    infobox_title = soup.find("h2", class_ = "pi-title")
+    infobox_title = soup.find("h2", class_="pi-title")
     image = infobox_title.find("img") if infobox_title is not None else None
 
     if image is None:
@@ -185,27 +194,29 @@ def _get_sticker_set_main_sticker_id(soup: BeautifulSoup) -> int | None:
     image_source_url = str(image["src"])
     image_source_url_clean = extract_sticker_original_image_url(image_source_url)
 
-    if (image_source_is_unknown_image(image_source_url_clean)):
+    if image_source_is_unknown_image(image_source_url_clean):
         log(f"Target set has no main sticker assigned.")
         return None
-    
+
     sticker = get_sticker_by_source_url(image_source_url_clean)
     if sticker is None:
         log(f"WARN: Failed to get main sticker: Could not find sticker in database")
         return None
-    
+
     log(f"Main sticker is {sticker.full_title} (ID {sticker.id})")
     return sticker.id
 
 
-def _update_sticker_db(sticker: Sticker) -> Tuple[Sticker, Character]: 
+def _update_sticker_db(sticker: Sticker) -> Tuple[Sticker, Character]:
     """
     Handles updating the database with the sticker. The sticker object lacks its id and character_id before this function is called.
     """
     # Check if this is first-time character
     first_time_character = not character_exists_by_name(sticker.character)
-    if (first_time_character):
-        log(f"Character '{sticker.character}' not found in database, creating new entry...")
+    if first_time_character:
+        log(
+            f"Character '{sticker.character}' not found in database, creating new entry..."
+        )
         character = Character(name=sticker.character)
         character_id = create_character(character)
         character.id = character_id
@@ -223,8 +234,10 @@ def _update_sticker_db(sticker: Sticker) -> Tuple[Sticker, Character]:
     # TODO: Should eventually stop using full_title and construct via database character name and title only.
     # Quick check if the full sticker title was updated. Thanks Columbina.
     assert saved_sticker is not None
-    if (saved_sticker.full_title != sticker.full_title):
-        log(f"WARN: Sticker title mismatch: '{sticker.full_title}' (new) vs '{saved_sticker.full_title}' (saved). Using new title.")
+    if saved_sticker.full_title != sticker.full_title:
+        log(
+            f"WARN: Sticker title mismatch: '{sticker.full_title}' (new) vs '{saved_sticker.full_title}' (saved). Using new title."
+        )
         update_sticker(sticker)
 
     # sticker now has all data
@@ -233,41 +246,51 @@ def _update_sticker_db(sticker: Sticker) -> Tuple[Sticker, Character]:
     if first_time_character or character.main_sticker_id is None:
         character.main_sticker_id = sticker_id
         update_character(character)
-        log(f"Updated main sticker for character {character.name} to {sticker.full_title}")
+        log(
+            f"Updated main sticker for character {character.name} to {sticker.full_title}"
+        )
 
     # now character has all data
     return sticker, character
 
-def scrape_until_no_new_sets() -> None:
+
+def scrape_until_no_new_sets(start: int | None = None) -> list[ScrapeOutcome]:
     """
     runs the scraper on all numbered sets until it encounters failure
+    return list of (set_name, ScrapeResult) tuples
     """
-    current = 1
-
+    current = start if start is not None else get_latest_set() + 1
+    outcomes = []
+    
     try:
         while True:
-            result = scrape_sticker_set(str(current))
+            outcome = scrape_sticker_set(str(current))
+            outcomes.append(outcome)
             current += 1
-            if result.is_failure:
+            if outcome.is_failure:
                 break
     except Exception as e:
         raise e
     finally:
         log(f"Processed sets 1 to {current - 1}.")
+    return outcomes
 
-def scrape_latest_set() -> ScrapeResult:
+def scrape_latest_set() -> ScrapeOutcome:
     """
     Attempts to scrape the next numbered sticker set after latest set recorded. Returns the ScrapeResult of the attempt, and will increment latest set only if fully successful.
     """
     latest_set = get_latest_set()
     next_set = latest_set + 1
     try:
-        result = scrape_sticker_set(str(next_set))
+        outcome = scrape_sticker_set(str(next_set))
         # On a partial success, will need to re-scrape later on so do not update.
-        if result == ScrapeResult.SUCCESS:
+        if outcome.result == ScrapeResult.SUCCESS_MISSING_TITLES:
+            # TODO: Append to file as incomplete set 
+            pass
+        elif outcome.result == ScrapeResult.SUCCESS:
             update_latest_set(next_set)
-        
-        return result
+
+        return outcome
     except Exception as e:
         raise e
 
@@ -309,32 +332,4 @@ def _extract_character_and_title(sticker_caption: BeautifulSoup) -> Tuple[str, s
         log(f"WARN: Sticker '{raw_text}' missing character")
         title = raw_text.strip()
 
-
-    return character,title
-
-if __name__ == "__main__":
-    # doctest.testmod(verbose=True, optionflags=doctest.ELLIPSIS)
-    try:
-        # scrape_until_no_new_sets()
-        result = scrape_latest_set()
-        match (result):
-            case ScrapeResult.SUCCESS:
-                log("New set scraped successfully.")
-                sys.exit(0)
-            case ScrapeResult.SUCCESS_MISSING_TITLES:
-                log("New set scraped successfully, but with some missing titles.")
-                sys.exit(0)
-            case ScrapeResult.FAILURE_NO_DATA:
-                log("New set was not found (no data).")
-                sys.exit(1)
-            case ScrapeResult.FAILURE_TOO_MANY_MISSING_TITLES:
-                log("New set scrape aborted due to too many missing titles.")
-                sys.exit(1)
-            case ScrapeResult.FAILURE:
-                log("New set scrape failed.")
-                sys.exit(1)
-    except Exception as e:
-        log(f"ERROR: Aborting scrape: {e}")
-        print(traceback.format_exc())
-        sys.exit(1)
-        
+    return character, title
