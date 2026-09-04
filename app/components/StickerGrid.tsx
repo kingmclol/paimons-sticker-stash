@@ -1,18 +1,18 @@
 "use client";
 import toast from "react-hot-toast";
-import { stickers } from "../generated/prisma/client";
 import ErrorImage from "./ErrorImage";
 import StickerCard from "./StickerCard";
 import Star from "./Star";
 import StickerActions from "./StickerActions";
 import CopyStickerButton from "./CopyStickerButton";
+import { StickerView } from "@/lib/types";
 
 function StickerGrid({
   stickers,
   starredStickerIds,
   setFavouriteStickerIds,
 }: {
-  stickers: stickers[];
+  stickers: StickerView[];
   starredStickerIds: number[];
   setFavouriteStickerIds: React.Dispatch<React.SetStateAction<number[]>>;
 }) {

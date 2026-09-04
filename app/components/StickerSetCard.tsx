@@ -1,8 +1,8 @@
 import { encodeForURL, formatDate } from "../utils/utils";
 import Card from "./Card";
-import { StickerSet } from "@/lib/types";
+import { StickerSetView } from "@/lib/types";
 
-async function StickerSetCard({ stickerSet }: { stickerSet: StickerSet }) {
+async function StickerSetCard({ stickerSet }: { stickerSet: StickerSetView }) {
   let releaseDate;
 
   if (!stickerSet.release_date) {

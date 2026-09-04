@@ -2,6 +2,7 @@ export const dynamicParams = false;
 export const dynamic = "force-static";
 
 import prisma from "@/lib/prisma";
+import { getStickerSetById } from "@/app/utils/queries/stickerSets";
 import { StickerSetSchema } from "@/lib/schemas";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -22,18 +23,7 @@ export async function GET(
 ) {
   const { id } = await params;
   try {
-    const set = await prisma.sticker_sets.findUnique({
-      where: { id: Number(id) },
-      select: {
-        id: true,
-        name: true,
-        release_date: true,
-        main_sticker_id: true,
-        stickers: {
-          select: { id: true },
-        },
-      },
-    });
+    const set = await getStickerSetById(Number(id));
 
     if (!set) {
       return NextResponse.json(
@@ -42,10 +32,13 @@ export async function GET(
       );
     }
     const formattedSet = {
-      ...set,
+      id: set.id,
+      name: set.name,
+      main_sticker_id: set.main_sticker?.id || null,
       stickers: set.stickers.map((sticker) => sticker.id),
-      release_date: set.release_date?.toISOString().split("T")[0] || null,
-      num_stickers: set.stickers.length,
+      release_date:
+        set.release_date?.toISOString().split("T")[0] || null,
+      num_stickers: set.num_stickers,
     };
     const validatedSet = StickerSetSchema.parse(formattedSet);
     return NextResponse.json(validatedSet, { status: 200 });

@@ -1,11 +1,11 @@
 import Image from "next/image";
-import { stickers } from "../generated/prisma/client";
+import { StickerView } from "@/lib/types";
 
 function StickerCard({
   sticker,
   actions,
 }: {
-  sticker: stickers;
+  sticker: StickerView;
   actions?: React.ReactNode;
 }) {
   return (

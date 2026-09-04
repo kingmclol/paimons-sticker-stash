@@ -1,29 +1,15 @@
+import { getStickerById } from "@/app/utils/queries/stickers";
+import { getStickerSets } from "@/app/utils/queries/stickerSets";
 import prisma from "@/lib/prisma";
+import { StickerSetView } from "@/lib/types";
 import Card from "../../components/Card";
 import PageHeader from "../../components/PageHeader";
 import StickerSetCard from "../../components/StickerSetCard";
-import { StickerSet } from "@/lib/types";
 
 async function page() {
-  const stickerSets: StickerSet[] = await prisma.sticker_sets
-    .findMany({
-      include: {
-        main_sticker: true,
-        _count: {
-          select: { stickers: true },
-        },
-      },
-    })
-    .then((sets) =>
-      sets.map((set) => ({
-        ...set,
-        num_stickers: set._count.stickers,
-      })),
-    );
-
-  const pageSticker = await prisma.stickers.findUnique({
-    where: { id: 134 }, // Kokomi: Laid-Back
-  });
+  const stickerSets: StickerSetView[] = await getStickerSets();
+  const pageSticker = await getStickerById(134); // Kokomi: Laid-Back
+ 
   return (
     <>
       <PageHeader

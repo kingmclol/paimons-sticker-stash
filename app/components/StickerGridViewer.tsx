@@ -1,5 +1,5 @@
 "use client";
-import { Sticker } from "@/lib/types";
+import { StickerView } from "@/lib/types";
 import { useMemo, useState } from "react";
 import useHasHydrated from "../hooks/useHasHydrated";
 import { useLocalStorageState } from "../hooks/useLocalStorageState";
@@ -17,7 +17,7 @@ function StickerGridViewer({
   canFilterStarred = true,
   canSearch = true,
 }: {
-  stickers: Sticker[];
+  stickers: StickerView[];
   starredOnly?: boolean;
   canFilterStarred?: boolean;
   canSearch?: boolean;

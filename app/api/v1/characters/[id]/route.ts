@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import { getCharacterById } from "@/app/utils/queries/characters";
 import { CharacterSchema } from "@/lib/schemas";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,21 +8,7 @@ export async function GET(
 ) {
   const { id } = await params;
   try {
-    const character = await prisma.characters.findUnique({
-      where: {
-        id: Number(id),
-      },
-      select: {
-        id: true,
-        name: true,
-        main_sticker_id: true,
-        stickers: {
-          select: {
-            id: true,
-          },
-        },
-      },
-    });
+    const character = await getCharacterById(Number(id));
 
     if (!character) {
       return NextResponse.json(
@@ -31,13 +17,15 @@ export async function GET(
       );
     }
 
-    const formattedCharacters = {
-      ...character,
+    const formattedCharacter = {
+      id: character.id,
+      name: character.name,
+      main_sticker_id: character.main_sticker?.id || null,
       stickers: character.stickers.map((sticker) => sticker.id),
       num_stickers: character.stickers.length,
     };
-    const validatedCharacers = CharacterSchema.parse(formattedCharacters);
-    return NextResponse.json(validatedCharacers, { status: 200 });
+    const validatedCharacter = CharacterSchema.parse(formattedCharacter);
+    return NextResponse.json(validatedCharacter, { status: 200 });
   } catch (e) {
     console.error(e);
     return NextResponse.json(

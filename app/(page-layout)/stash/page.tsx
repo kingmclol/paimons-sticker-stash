@@ -1,13 +1,11 @@
 import PageHeader from "@/app/components/PageHeader";
 import StickerGridViewer from "@/app/components/StickerGridViewer";
-import prisma from "@/lib/prisma";
+import { getStickerById, getStickers } from "@/app/utils/queries/stickers";
 
 async function page() {
-  const stickers = await prisma.stickers.findMany();
+  const stickers = await getStickers();
+  const sticker = await getStickerById(10); // Paimon: Ship Out!
 
-  const sticker = await prisma.stickers.findUnique({
-    where: { id: 10 }, // Paimon: Ship Out!
-  });
   return (
     <>
       <PageHeader

@@ -1,9 +1,9 @@
 import PageHeader from "@/app/components/PageHeader";
 import StickerGridViewer from "@/app/components/StickerGridViewer";
-import prisma from "@/lib/prisma";
+import { getStickers } from "@/app/utils/queries/stickers";
 
 async function page() {
-  const stickers = await prisma.stickers.findMany();
+  const stickers = await getStickers();
   return (
     <>
       <PageHeader

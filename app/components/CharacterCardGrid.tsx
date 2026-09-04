@@ -1,6 +1,6 @@
 "use client";
 
-import { Character } from "@/lib/types";
+import { CharacterListView } from "@/lib/types";
 import { useMemo, useState } from "react";
 import CardGrid from "./CardGrid";
 import CharacterCard from "./CharacterCard";
@@ -11,7 +11,7 @@ import StickyTop from "./StickyTop";
 
 const pageSize = 50;
 
-function CharacterCardGrid({ characters }: { characters: Character[] }) {
+function CharacterCardGrid({ characters }: { characters: CharacterListView[] }) {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   let filteredCharacters = characters;
