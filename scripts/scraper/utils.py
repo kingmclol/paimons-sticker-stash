@@ -9,7 +9,7 @@ import urllib.parse
 
 from constants import STICKERS_DIR, LATEST_SET_PATH, ENDPOINT
 from enums import DownloadResult
-from Entities import Sticker
+from entities import Sticker
 
 
 

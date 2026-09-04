@@ -2,7 +2,7 @@
 Functions for writing data to stickers database. Running the file allows for manual editing of characters
 """
 import sqlite3
-from Entities import *
+from entities import *
 from constants import PROJECT_ROOT
 
 DB_PATH = f"{PROJECT_ROOT}/stickers.db"
