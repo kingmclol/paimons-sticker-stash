@@ -2,6 +2,9 @@
 Entities file
 """
 
+from scripts.scraper.constants import FALLBACK_TITLE
+
+
 class Sticker:
     """
     Dataclass to represent a sticker.
@@ -40,7 +43,7 @@ class Sticker:
         self.title = title
         self.image_url_source = image_url_source
         self.character = character
-        self.full_title = f"{character}: {title if title else 'Unknown'}"
+        self.full_title = f"{character}: {title if title else FALLBACK_TITLE}"
         self.set_id = set_id
         self.filename = filename
         self.filepath = f"/stickers/set_{set_name}/{filename}"

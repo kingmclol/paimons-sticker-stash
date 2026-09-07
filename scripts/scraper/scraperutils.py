@@ -90,9 +90,8 @@ def scrape_sticker_set(set_name: str) -> ScrapeOutcome:
 
         # Empty Title check
         if not title:
-            title = FALLBACK_TITLE
             scrape_outcome.num_missing_title += 1
-            log(f"WARN: Sticker '{raw_text}' has no title, using fallback '{FALLBACK_TITLE}'.")
+            log(f"WARN: Sticker '{raw_text}' has no title.")
 
             # Abort if enough stickers have no titles, if set (pun intended)
             if MAX_UNKNOWN_TITLE_STICKERS_ABORT != -1:
