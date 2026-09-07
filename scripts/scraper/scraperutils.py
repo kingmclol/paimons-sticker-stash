@@ -1,17 +1,12 @@
-import sys
 from time import sleep
-import traceback
 from typing import Tuple
-
-import requests
 from bs4 import BeautifulSoup
 
 from utils import *
 from database import *
-from Entities import *
+from entities import *
 from enums import *
 from models import ScrapeOutcome
-import doctest
 
 # The number of stickers with unknown titles to allow before aborting the scrape and throwing an error.
 # Set to -1 to disable.

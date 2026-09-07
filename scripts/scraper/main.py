@@ -8,8 +8,8 @@ import argparse
 import traceback
 
 from utils import log
-from enums import ScrapeResult
-from scraper import *
+from models import ScrapeOutcome
+from scraperutils import *
 
 parser = argparse.ArgumentParser(description="Scrape stickers from Genshin Impact Wiki")
 parser.add_argument(
@@ -55,8 +55,6 @@ def summarize_outcome(outcome: ScrapeOutcome) -> None:
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    result = scrape_latest_set()
-    summarize_outcome(result)
     try:
         if args.current:
             result = scrape_latest_set()
