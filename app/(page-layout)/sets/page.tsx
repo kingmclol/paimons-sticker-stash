@@ -15,14 +15,14 @@ async function page() {
       <PageHeader
         sticker={pageSticker}
         title="Sticker Sets"
-        description="Most of the sticker sets that existed in the Paimon's Paintings page on the wiki, along with your own CUSTOMIZABLE set!"
+        description="Sticker sets taken from the Fandom Wiki's Paimon's Paintings page, along with your own CUSTOMIZABLE set!"
       />
       <div className="grid auto-rows-min grid-cols-1 items-start gap-8 sm:grid-cols-2">
         <Card
           href="/sets/favourites"
           imageSrc="/primogem.png"
           title="Favourites"
-          subtext="Your favourite in one place!"
+          subtext="Your favourite stickers!"
         />
         {stickerSets.map((set) => (
           <StickerSetCard key={set.id} stickerSet={set} />
