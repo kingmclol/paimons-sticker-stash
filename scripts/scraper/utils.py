@@ -1,17 +1,15 @@
 """
 Utils
 """
+
 import os
 import requests
 import datetime
-import doctest
 import urllib.parse
 
 from constants import STICKERS_DIR, LATEST_SET_PATH, ENDPOINT
 from enums import DownloadResult
 from entities import Sticker
-
-
 
 
 def download_sticker(sticker: Sticker) -> DownloadResult:
@@ -20,12 +18,16 @@ def download_sticker(sticker: Sticker) -> DownloadResult:
     """
     os.makedirs(STICKERS_DIR, exist_ok=True)  # Ensure the directory exists
 
-    filename=extract_filename(sticker.image_url_source)
+    filename = extract_filename(sticker.image_url_source)
 
     response = requests.get(sticker.image_url_source)
     if response.status_code == 200:
-        os.makedirs(f"{STICKERS_DIR}/set_{sticker.set_name}", exist_ok=True)  # Ensure the set directory exists
-        if os.path.exists(f"{STICKERS_DIR}/set_{sticker.set_name}/{filename}"):  # exists, skip download
+        os.makedirs(
+            f"{STICKERS_DIR}/set_{sticker.set_name}", exist_ok=True
+        )  # Ensure the set directory exists
+        if os.path.exists(
+            f"{STICKERS_DIR}/set_{sticker.set_name}/{filename}"
+        ):  # exists, skip download
             return DownloadResult.SKIPPED_ALREADY_EXISTS
 
         with open(f"{STICKERS_DIR}/set_{sticker.set_name}/{filename}", "wb") as f:
@@ -46,14 +48,16 @@ def get_sticker_set_page_html(set_name: str) -> str:
     }
     response = requests.get(ENDPOINT, params=params)
     if response.status_code == 200:
-        data = response.json();
+        data = response.json()
         if "error" in data:
             log(f"Error fetching page HTML for set {set_name}: {data['error']['info']}")
             return ""
-    
+
         return data["parse"]["text"]["*"]
     else:
-        log(f"Failed to fetch page HTML for set {set_name}, recieved error {response.status_code}")
+        log(
+            f"Failed to fetch page HTML for set {set_name}, recieved error {response.status_code}"
+        )
         return ""
 
 
@@ -88,6 +92,7 @@ def extract_filename(image_url: str) -> str:
     """
     img_original = extract_sticker_original_image_url(image_url)
     return urllib.parse.unquote(img_original.split("/")[-1].replace(".png", ".webp"))
+
 
 def get_latest_set() -> int:
     """
@@ -124,7 +129,7 @@ def get_timestamp() -> str:
     """
     Returns a formatted timestamp
     """
-    return datetime.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    return datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S")
 
 
 def to_iso_date(date_str: str) -> str:
@@ -138,6 +143,7 @@ def to_iso_date(date_str: str) -> str:
     date_obj = datetime.datetime.strptime(date_str, "%B %d, %Y")
     return date_obj.strftime("%Y-%m-%d")
 
+
 def encode_page_title(title: str) -> str:
     """
     Encodes a page title in the wiki url style
@@ -150,4 +156,6 @@ def encode_page_title(title: str) -> str:
 
 
 if __name__ == "__main__":
+    import doctest
+
     doctest.testmod(verbose=True)

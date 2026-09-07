@@ -7,6 +7,7 @@ from database import *
 from entities import *
 from enums import *
 from models import ScrapeOutcome
+from constants import FALLBACK_CHARACTER, FALLBACK_TITLE
 
 # The number of stickers with unknown titles to allow before aborting the scrape and throwing an error.
 # Set to -1 to disable.
@@ -21,13 +22,18 @@ def scrape_sticker_set(set_name: str) -> ScrapeOutcome:
     Scrapes all of the sticker data for the given paimon painting set. Returns False if the scraping was not successful (set does not exist, no stickers uploaded yet, too many unknown title stickers), True otherwise.
     """
     log(f"Attempting to scrape sticker set Set {set_name}...")
+    log(f"Config:")
+    log(
+        f"\tAllowed missing titles before abort: {MAX_UNKNOWN_TITLE_STICKERS_ABORT if MAX_UNKNOWN_TITLE_STICKERS_ABORT != -1 else 'N/A'}"
+    )
+    log(
+        f"\tMax permissible missing titles for success: {MAX_UNKNOWN_TITLE_STICKERS_SUCCESSFUL}"
+    )
+
     html = get_sticker_set_page_html(set_name)
     soup = BeautifulSoup(html, "html.parser")
 
-    scrape_outcome = ScrapeOutcome(
-        set_name=set_name
-    )
-
+    scrape_outcome = ScrapeOutcome(set_name=set_name)
 
     # Check if article exists
     if soup.find("div", class_="noarticletext") is not None:
@@ -71,13 +77,22 @@ def scrape_sticker_set(set_name: str) -> ScrapeOutcome:
         image_source_original = extract_sticker_original_image_url(str(image["src"]))
 
         cell_caption = cell.find("div", class_="lightbox-caption")
-
         assert cell_caption is not None
+        raw_text = cell_caption.get_text()
         character, title = _extract_character_and_title(cell_caption)
 
+        # Empty Character check
+        if not character:
+            character = FALLBACK_CHARACTER
+            log(
+                f"WARN: Sticker '{raw_text}' has no character, using fallback '{FALLBACK_CHARACTER}'."
+            )
+
         # Empty Title check
-        if title == "Unknown":
+        if not title:
+            title = FALLBACK_TITLE
             scrape_outcome.num_missing_title += 1
+            log(f"WARN: Sticker '{raw_text}' has no title, using fallback '{FALLBACK_TITLE}'.")
 
             # Abort if enough stickers have no titles, if set (pun intended)
             if MAX_UNKNOWN_TITLE_STICKERS_ABORT != -1:
@@ -90,6 +105,11 @@ def scrape_sticker_set(set_name: str) -> ScrapeOutcome:
                     )
                     scrape_outcome.result = ScrapeResult.FAILURE_TOO_MANY_MISSING_TITLES
                     return scrape_outcome
+
+            if scrape_outcome.num_missing_title > MAX_UNKNOWN_TITLE_STICKERS_SUCCESSFUL:
+                log(
+                    f"WARN: {scrape_outcome.num_missing_title}/{MAX_UNKNOWN_TITLE_STICKERS_SUCCESSFUL} unknown sticker titles."
+                )
 
         filename = extract_filename(image_source_original)
         sticker = Sticker(
@@ -110,13 +130,10 @@ def scrape_sticker_set(set_name: str) -> ScrapeOutcome:
             scrape_outcome.num_success += 1
         elif download_result == DownloadResult.FAILURE:
             scrape_outcome.num_failure += 1
-            log(
-                f"WARN: Failed to download image for sticker '{sticker.full_title}'."
-            )
+            log(f"WARN: Failed to download image for sticker '{sticker.full_title}'.")
         else:
             scrape_outcome.num_success += 1
             log(f"Downloaded '{sticker.full_title}' as {filename}")
-
 
         sticker, character = _update_sticker_db(sticker)
         log(
@@ -256,7 +273,7 @@ def scrape_until_no_new_sets(start: int | None = None) -> list[ScrapeOutcome]:
     """
     current = start if start is not None else get_latest_set() + 1
     outcomes = []
-    
+
     try:
         while True:
             outcome = scrape_sticker_set(str(current))
@@ -270,6 +287,7 @@ def scrape_until_no_new_sets(start: int | None = None) -> list[ScrapeOutcome]:
         log(f"Processed sets 1 to {current - 1}.")
     return outcomes
 
+
 def scrape_latest_set() -> ScrapeOutcome:
     """
     Attempts to scrape the next numbered sticker set after latest set recorded. Returns the ScrapeResult of the attempt, and will increment latest set only if fully successful.
@@ -280,7 +298,7 @@ def scrape_latest_set() -> ScrapeOutcome:
         outcome = scrape_sticker_set(str(next_set))
         # On a partial success, will need to re-scrape later on so do not update.
         if outcome.result == ScrapeResult.SUCCESS_MISSING_TITLES:
-            # TODO: Append to file as incomplete set 
+            # TODO: Append to file as incomplete set
             pass
         elif outcome.result == ScrapeResult.SUCCESS:
             update_latest_set(next_set)
@@ -290,29 +308,26 @@ def scrape_latest_set() -> ScrapeOutcome:
         raise e
 
 
-def _extract_character_and_title(sticker_caption: BeautifulSoup) -> Tuple[str, str]:
+def _extract_character_and_title(
+    sticker_caption: BeautifulSoup,
+) -> Tuple[str | None, str | None]:
     """
-    Given sticker caption string, extracts and returns the character and title as a tuple.
+    Given sticker caption string, extracts and returns the character and title as a tuple. If something is not found, will be None.
     >>> from bs4 import BeautifulSoup
     >>> _extract_character_and_title(BeautifulSoup('<div><a>Ineffa</a>:\xa0ABC</div>', 'html.parser').find("div"))
     ('Ineffa', 'ABC')
     >>> _extract_character_and_title(BeautifulSoup('<div>Shake Hands</div>', 'html.parser').find("div"))
-    [... ...] WARN: Sticker 'Shake Hands' missing character
-    ('Unknown', 'Shake Hands')
+    (None, 'Shake Hands')
     >>> _extract_character_and_title(BeautifulSoup('<div><a>C</a>:\xa0<span><span>A</span> "B"</span></div>', 'html.parser').find("div"))
     ('C', 'A "B"')
     >>> _extract_character_and_title(BeautifulSoup('<div><a>Paimon</a></div>', 'html.parser').find("div"))
-    [... ...] WARN: Sticker 'Paimon' missing title
-    ('Paimon', 'Unknown')
+    ('Paimon', None)
     """
     raw_text = sticker_caption.get_text()
     text_split = raw_text.split(":\xa0")
     anchor = sticker_caption.find("a")
 
     character_present = anchor is not None
-
-    character = "Unknown"
-    title = "Unknown"
 
     if character_present:
         # Know that character is going to be first in the text
@@ -321,10 +336,15 @@ def _extract_character_and_title(sticker_caption: BeautifulSoup) -> Tuple[str, s
             # A title is also provided.
             title = text_split[1].strip()
         else:
-            log(f"WARN: Sticker '{raw_text}' missing title")
-    else:
-        # No character anchor, so only a title exists.
-        log(f"WARN: Sticker '{raw_text}' missing character")
+            title = None
+    else:  # no character, just title.
+        character = None
         title = raw_text.strip()
 
     return character, title
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod(verbose=True)
