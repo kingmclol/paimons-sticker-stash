@@ -1,5 +1,5 @@
+import { StickerView } from "@/lib/types";
 import Image from "next/image";
-import { stickers } from "../generated/prisma/client";
 
 function PageHeader({
   sticker,
@@ -8,7 +8,7 @@ function PageHeader({
   title,
   description,
 }: {
-  sticker?: stickers | null | undefined;
+  sticker?: StickerView | null | undefined;
   imageSrc?: string;
   imageAlt?: string;
   title: string;

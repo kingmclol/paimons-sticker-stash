@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import { getStickerSets } from "@/app/utils/queries/stickerSets";
 import { StickerSetSchema, StickerSetsQuerySchema } from "@/lib/schemas";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
@@ -11,32 +11,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(z.treeifyError(result.error), { status: 400 });
   }
 
-  const { min_stickers } = queryObj;
+  const { min_stickers } = result.data;
 
   try {
-    const sets = await prisma.sticker_sets
-      .findMany({
-        select: {
-          id: true,
-          name: true,
-          release_date: true,
-          main_sticker_id: true,
-          stickers: {
-            select: { id: true },
-          },
-        },
-      })
-      .then((data) =>
-        data.filter(
-          (set) => !min_stickers || set.stickers.length > Number(min_stickers),
-        ),
-      );
-
+    const sets = await getStickerSets({ minStickers: min_stickers });
     const formattedSets = sets.map((set) => ({
-      ...set,
+      id: set.id,
+      name: set.name,
+      main_sticker_id: set.main_sticker?.id || null,
       stickers: set.stickers.map((sticker) => sticker.id),
       release_date: set.release_date?.toISOString().split("T")[0] || null,
-      num_stickers: set.stickers.length,
+      num_stickers: set.num_stickers,
     }));
 
     const validatedSets = z.array(StickerSetSchema).parse(formattedSets);

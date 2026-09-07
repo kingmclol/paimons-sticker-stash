@@ -2,8 +2,8 @@
 Functions for writing data to stickers database. Running the file allows for manual editing of characters
 """
 import sqlite3
-from Entities import *
-from utils import PROJECT_ROOT
+from entities import *
+from constants import PROJECT_ROOT
 
 DB_PATH = f"{PROJECT_ROOT}/stickers.db"
 
@@ -40,10 +40,8 @@ def initialize_database():
             set_id INTEGER NOT NULL,
             character_id INTEGER NOT NULL,
             title TEXT NOT NULL,
-            full_title TEXT NOT NULL,
             image_url_source TEXT NOT NULL UNIQUE,
             filename TEXT NOT NULL UNIQUE,
-            filepath TEXT UNIQUE,
             FOREIGN KEY (character_id) REFERENCES characters(id),
             FOREIGN KEY (set_id) REFERENCES sticker_sets(id)
         );
@@ -180,10 +178,10 @@ def create_sticker(sticker: Sticker) -> int:
             return row["id"]
         c.execute("""
         INSERT INTO stickers 
-        (set_id, character_id, title, full_title, image_url_source, filename, filepath) 
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (sticker.set_id, sticker.character_id, sticker.title, sticker.full_title,
-              sticker.image_url_source, sticker.filename, sticker.filepath))
+        (set_id, character_id, title, image_url_source, filename) 
+        VALUES (?, ?, ?, ?, ?)
+        """, (sticker.set_id, sticker.character_id, sticker.title,
+              sticker.image_url_source, sticker.filename))
         conn.commit()
         return c.lastrowid
 
@@ -206,7 +204,6 @@ def get_sticker_by_id(id: int) -> Sticker | None:
                 set_id=row["set_id"],
                 set_name=sticker_set.name,
                 id=row["id"],
-                filepath=row["filepath"],
                 character_id=row["character_id"],
                 filename=row["filename"],
             )
@@ -225,11 +222,11 @@ def update_sticker(sticker: Sticker):
         c = conn.cursor()
         c.execute("""
         UPDATE stickers
-        SET set_id = ?, character_id = ?, title = ?, full_title = ?, 
-            image_url_source = ?, filename = ?, filepath = ?, updated_at = datetime('now')
+        SET set_id = ?, character_id = ?, title = ?, 
+            image_url_source = ?, filename = ?, updated_at = datetime('now')
         WHERE id = ?
-        """, (sticker.set_id, sticker.character_id, sticker.title, sticker.full_title,
-              sticker.image_url_source, sticker.filename, sticker.filepath, sticker.id))
+        """, (sticker.set_id, sticker.character_id, sticker.title,
+              sticker.image_url_source, sticker.filename, sticker.id))
         conn.commit()
 
 
@@ -253,7 +250,6 @@ def get_stickers_by_character_id(character_id: int) -> list[Sticker]:
                 set_id=row["set_id"],
                 set_name=sticker_set.name,
                 id=row["id"],
-                filepath=row["filepath"],
                 character_id=row["character_id"],
                 filename=row["filename"]
             ))
@@ -290,7 +286,6 @@ def get_sticker_by_source_url(image_url_source: str) -> Sticker | None:
                 set_id=row["set_id"],
                 set_name=sticker_set.name,
                 id=row["id"],
-                filepath=row["filepath"],
                 character_id=row["character_id"],
                 filename=row["filename"]
             )

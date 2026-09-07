@@ -1,5 +1,4 @@
-import { Prisma } from "@/app/generated/prisma/client";
-import prisma from "@/lib/prisma";
+import { getStickers } from "@/app/utils/queries/stickers";
 import { StickerSchema, StickersQuerySchema } from "@/lib/schemas";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
@@ -12,53 +11,27 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(z.treeifyError(result.error), { status: 400 });
   }
 
-  const { character_id, set_id, query } = queryObj;
-  const where: Prisma.stickersWhereInput = {};
-
-  if (character_id) {
-    where.character_id = Number(character_id);
-  }
-  if (set_id) {
-    where.set_id = Number(set_id);
-  }
-  // Seems like SQLite doesn't allow for insensitive search...
-  // if (query) {
-  //   where.full_title = { contains: query, mode: "insensitive" };
-  // }
-  console.log(where);
+  const { character_id, set_id, query } = result.data;
   try {
-    const stickers = await prisma.stickers
-      .findMany({
-        select: {
-          id: true,
-          character: {
-            select: { name: true },
-          },
-          set: {
-            select: { name: true },
-          },
-          set_id: true,
-          image_url_source: true,
-          filepath: true,
-          character_id: true,
-          title: true,
-          full_title: true,
-        },
-        where: where,
-      })
-      .then((data) =>
-        data.filter((sticker) =>
-          query
-            ? sticker.full_title.toLowerCase().includes(query.toLowerCase())
-            : true,
-        ),
-      );
-
-    const formattedStickers = stickers.map((sticker) => ({
-      ...sticker,
-      set: sticker.set.name,
+    const stickers = await getStickers({
+      characterId: character_id,
+      setId: set_id,
+    });
+    const filteredStickers = query
+      ? stickers.filter((sticker) =>
+          sticker.full_title.toLowerCase().includes(query.toLowerCase()),
+        )
+      : stickers;
+    const formattedStickers = filteredStickers.map((sticker) => ({
+      id: sticker.id,
+      title: sticker.title,
+      character: sticker.character,
+      full_title: sticker.full_title,
+      character_id: sticker.character_id,
+      set: sticker.set,
+      set_id: sticker.set_id,
+      image_url_source: sticker.image_url_source,
       image_path_stash: sticker.filepath,
-      character: sticker.character.name,
     }));
 
     const validatedStickers = z.array(StickerSchema).parse(formattedStickers);

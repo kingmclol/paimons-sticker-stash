@@ -1,42 +1,28 @@
+import { getStickerById } from "@/app/utils/queries/stickers";
+import { getStickerSets } from "@/app/utils/queries/stickerSets";
 import prisma from "@/lib/prisma";
+import { StickerSetView } from "@/lib/types";
 import Card from "../../components/Card";
 import PageHeader from "../../components/PageHeader";
 import StickerSetCard from "../../components/StickerSetCard";
-import { StickerSet } from "@/lib/types";
 
 async function page() {
-  const stickerSets: StickerSet[] = await prisma.sticker_sets
-    .findMany({
-      include: {
-        main_sticker: true,
-        _count: {
-          select: { stickers: true },
-        },
-      },
-    })
-    .then((sets) =>
-      sets.map((set) => ({
-        ...set,
-        num_stickers: set._count.stickers,
-      })),
-    );
-
-  const pageSticker = await prisma.stickers.findUnique({
-    where: { id: 134 }, // Kokomi: Laid-Back
-  });
+  const stickerSets: StickerSetView[] = await getStickerSets();
+  const pageSticker = await getStickerById(134); // Kokomi: Laid-Back
+ 
   return (
     <>
       <PageHeader
         sticker={pageSticker}
         title="Sticker Sets"
-        description="Most of the sticker sets that existed in the Paimon's Paintings page on the wiki, along with your own CUSTOMIZABLE set!"
+        description="Sticker sets taken from the Fandom Wiki's Paimon's Paintings page, along with your own CUSTOMIZABLE set!"
       />
       <div className="grid auto-rows-min grid-cols-1 items-start gap-8 sm:grid-cols-2">
         <Card
           href="/sets/favourites"
           imageSrc="/primogem.png"
           title="Favourites"
-          subtext="Your favourite in one place!"
+          subtext="Your favourite stickers!"
         />
         {stickerSets.map((set) => (
           <StickerSetCard key={set.id} stickerSet={set} />

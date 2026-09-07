@@ -1,8 +1,8 @@
-import { Character } from "@/lib/types";
+import { CharacterListView } from "@/lib/types";
 import Card from "./Card";
 import { encodeForURL } from "../utils/utils";
 
-function CharacterCard({ character }: { character: Character }) {
+function CharacterCard({ character }: { character: CharacterListView }) {
   return (
     <Card
       title={character.name}

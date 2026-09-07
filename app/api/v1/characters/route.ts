@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import { getCharactersWithStickerIds } from "@/app/utils/queries/characters";
 import { CharacterSchema, CharactersQuerySchema } from "@/lib/schemas";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
@@ -11,36 +11,18 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(z.treeifyError(result.error), { status: 400 });
   }
 
-  const { min_stickers, query } = queryObj;
+  const { min_stickers, query } = result.data;
 
   try {
-    const characters = await prisma.characters
-      .findMany({
-        select: {
-          id: true,
-          name: true,
-          main_sticker_id: true,
-          stickers: {
-            select: {
-              id: true,
-            },
-          },
-        },
-      })
-      .then((data) =>
-        data.filter(
-          (character) =>
-            (!min_stickers ||
-              character.stickers.length >= Number(min_stickers)) &&
-            (!query ||
-              character.name
-                .toLowerCase()
-                .includes(query.toLowerCase())),
-        ),
-      );
+    const characters = await getCharactersWithStickerIds(query);
+    const filteredCharacters = characters.filter(
+      (character) =>
+        !min_stickers || character.stickers.length >= min_stickers,
+    );
 
-    const formattedCharacters = characters.map((character) => ({
+    const formattedCharacters = filteredCharacters.map((character) => ({
       ...character,
+      main_sticker_id: character.main_sticker_id,
       stickers: character.stickers.map((sticker) => sticker.id),
       num_stickers: character.stickers.length,
     }));

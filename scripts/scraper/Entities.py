@@ -6,45 +6,44 @@ class Sticker:
     """
     Dataclass to represent a sticker.
     Attributes:
-        - title: The title of the s ticker
+        - title: The title of the sticker (or None if unknown)
         - image_url_source: The source URL of the sticker's image
         - character: The character associated with the sticker
         - full_title: The full title of the sticker (as "Character: Title")
         - set_id: The sticker set id
         - set_name: The sticker set name
         - filename: The sanitized filename for the sticker image
-        - filepath: The local filepath, relative to root/public where the sticker image is saved for frontend ("" if not saved yet)
+        - filepath: The local filepath, relative to root/public where the sticker image is saved for frontend
         - id: the sticker's database ID (None if not saved yet)
         - character_id: the character's database ID (None if not saved yet)
     """
-    title: str
+    title: str | None
     image_url_source: str
     character: str
     full_title: str
     set_id: int
     set_name: str
     filename: str
-    filepath: str | None
+    filepath: str
     id: int | None
     character_id: int | None
 
     def __init__(self,
-                 title: str,
+                 title: str | None,
                  image_url_source: str,
                  character: str,
                  set_id: int,
                  set_name: str,
                  filename: str,
-                 filepath: str | None = None,
                  id: int | None = None,
                  character_id: int | None = None):
         self.title = title
         self.image_url_source = image_url_source
         self.character = character
-        self.full_title = f"{character}: {title}"
+        self.full_title = f"{character}: {title if title else 'Unknown'}"
         self.set_id = set_id
         self.filename = filename
-        self.filepath = filepath
+        self.filepath = f"/stickers/set_{set_name}/{filename}"
         self.id = id
         self.character_id = character_id
         self.set_name = set_name

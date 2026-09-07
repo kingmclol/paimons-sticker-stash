@@ -1,4 +1,4 @@
-import { Sticker } from "@/lib/types";
+import { StickerView } from "@/lib/types";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import {
@@ -15,7 +15,7 @@ function CopyStickerButton({
   size = 32,
   copyIndicatorTimeout = 2000,
 }: {
-  sticker: Sticker;
+  sticker: StickerView;
   size?: number;
   copyIndicatorTimeout?: number;
 }) {

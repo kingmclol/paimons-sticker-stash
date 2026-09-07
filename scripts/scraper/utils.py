@@ -2,46 +2,38 @@
 Utils
 """
 import os
-from typing import Tuple
-
-import urllib.parse
 import requests
 import datetime
 import doctest
+import urllib.parse
 
-# utils.py located in ROOT/scraper so going back two levels to get to ROOT
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from constants import STICKERS_DIR, LATEST_SET_PATH, ENDPOINT
+from enums import DownloadResult
+from entities import Sticker
 
-ENDPOINT = "https://genshin-impact.fandom.com/api.php"
 
-def download_sticker(image_url_source: str, set_name: str) -> Tuple[str | None, bool]:
+
+
+def download_sticker(sticker: Sticker) -> DownloadResult:
     """
-    Downloads the sticker's image to the nextjs public/stickers directory. Returns a tuple with the filePATH (None if failed)
-    and whether it was a cached download (already in computer so skipped downloading from source).
+    Downloads the sticker's image to the nextjs public/stickers directory. Returns whether it was a cached download (already in computer so skipped downloading from source).
     """
-    os.makedirs(f"{PROJECT_ROOT}/public/stickers", exist_ok=True)  # Ensure the directory exists
+    os.makedirs(STICKERS_DIR, exist_ok=True)  # Ensure the directory exists
 
-    filename=extract_filename(image_url_source)
+    filename=extract_filename(sticker.image_url_source)
 
-    response = requests.get(image_url_source)
+    response = requests.get(sticker.image_url_source)
     if response.status_code == 200:
-        os.makedirs(f"{PROJECT_ROOT}/public/stickers/set_{set_name}", exist_ok=True)  # Ensure the set directory exists
-        if os.path.exists(f"{PROJECT_ROOT}/public/stickers/set_{set_name}/{filename}"):
-            # If for some reason it already exists, skip.
-            return construct_filepath(set_name, filename), True
+        os.makedirs(f"{STICKERS_DIR}/set_{sticker.set_name}", exist_ok=True)  # Ensure the set directory exists
+        if os.path.exists(f"{STICKERS_DIR}/set_{sticker.set_name}/{filename}"):  # exists, skip download
+            return DownloadResult.SKIPPED_ALREADY_EXISTS
 
-        with open(f"{PROJECT_ROOT}/public/stickers/set_{set_name}/{filename}", "wb") as f:
+        with open(f"{STICKERS_DIR}/set_{sticker.set_name}/{filename}", "wb") as f:
             f.write(response.content)
-        return construct_filepath(set_name, filename), False
-    else:
-        return None, False
+        return DownloadResult.SUCCESS
+    else:  # error
+        return DownloadResult.FAILURE
 
-
-def construct_filepath(set_name: str, filename: str) -> str:
-    """
-    Constructs local filepath to sticker image from public
-    """
-    return f"/stickers/set_{set_name}/{filename}"
 
 def get_sticker_set_page_html(set_name: str) -> str:
     """
@@ -101,7 +93,7 @@ def get_latest_set() -> int:
     """
     Returns the latest sticker set number from latest_set.txt
     """
-    with open(f"{PROJECT_ROOT}/scraper/latest_set.txt", "r") as f:
+    with open(LATEST_SET_PATH, "r") as f:
         latest_set = int(f.read().strip())
     return latest_set
 
@@ -110,7 +102,7 @@ def update_latest_set(set_number: int):
     """
     Updates the latest sticker set number in latest_set.txt
     """
-    with open(f"{PROJECT_ROOT}/scraper/latest_set.txt", "w") as f:
+    with open(LATEST_SET_PATH, "w") as f:
         f.write(str(set_number))
 
 
@@ -118,7 +110,7 @@ def image_source_is_unknown_image(image_source: str) -> bool:
     """
     Returns whether the image source URL indicates an unknown sticker
     """
-    return "https://static.wikia.nocookie.net/gensin-impact/images/4/4a/Item_Unknown.png" in image_source
+    return "Item_Unknown.png" in image_source
 
 
 def log(content):

@@ -1,4 +1,3 @@
-import prisma from "@/lib/prisma";
 import Image from "next/image";
 
 // const stickerPool = [8, 6, 25, 39]
