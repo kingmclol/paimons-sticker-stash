@@ -2,7 +2,7 @@
 Entities file
 """
 
-from scripts.scraper.constants import FALLBACK_TITLE
+from constants import FALLBACK_TITLE
 
 
 class Sticker:
