@@ -3,7 +3,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/d9804569-fdac-4e4f-ac8a-64f4fc4b142c/deploy-status)](https://app.netlify.com/projects/paimons-sticker-stash/deploys)
 
-[Paimon's Sticker Stash](https://paimons-sticker-stash.netlify.app) is basically a consolidated stash of stickers from the hit video game *Genshin Impact*, scraped from the [Fandom Wiki](https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki). It supports text search for sticker titles, and groups stickers by Paimon's Painting sets and by character.
+[Paimon's Sticker Stash](https://paimons-sticker-stash.netlify.app) is basically a consolidated stash of stickers from the hit video game *Genshin Impact*, scraped from the [Fandom Wiki](https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki). It supports text search for sticker titles, groups stickers by Paimon's Painting sets and by character, while allowing you to curate your own set of stickers.
 
 The Sticker Stash also supports favouriting stickers for quick access (stored in browser LocalStorage), and since stickers are just images, you can copy them to use in messaging software like Discord or whatever. It also (theoretically) supports a [public API](https://paimons-sticker-stash.netlify.app/api) to query sticker data. Or you can just steal `stickers.db` and the `images/stickers` folder from this repository.
 
@@ -52,26 +52,28 @@ If for any reason you want to run Paimon's Sticker Stash locally on your machine
 ### Python Scraper
 If for any reason you want to run the... *questionably*-built Python scraper held together by hopes and dreams, the files are all located under `scraper`. I will rewrite it once it breaks, but it works at the moment so there's not much need to worry. As edge cases appear I will update to handle them, but since the Fandom Wiki appears to be consistently structured, it should be fine for a while.
 1. Clone the repository.
-2. Install requirements `pip install -r ./scraper/requirements.txt` or something like that
-3. Should be able to run the scraper now. There should be a bunch of logs in the console to tell you what it's doing. You can change what the scrape does by editing `scraper.py`'s `main` block. Some useful functions (e.g., scrape specific set) are provided already.
+2. Install requirements `pip install -r ./scripts/scraper/requirements.txt` or something like that
+3. Should be able to run the scraper now. There should be a bunch of logs in the console to tell you what it's doing. You can change what the scrape does by passing in different arguments to `/scripts/scraper/main.py`. Some useful functions (e.g., scrape specific set) are provided already.
 
-## A Word of Warning
+## Some Words of Warning
 ![Wanderer: Sobs](public/stickers/set_20/Icon_Emoji_Paimon's_Paintings_20_Wanderer_2.webp)
 
 As a short personal project of mine, there are a few sleeping issues which might come up to be a problem in the future for people who choose to use Paimon's Sticker Stash.
 
 ### Database Instability
-What I have made is not perfect, especially on the database side. There were some questionable decisions made in designing the schema for a database which unforunately has a partial loop of foreign key relations. 
+What I have made is not perfect, especially on the database side. There were some questionable decisions made in designing the schema for a database which unfortunately has a partial loop of foreign key relations. 
 
 This means that if the scraper messes up, fixing/deleting things is going to be... not fun to say the least (that's why it's version controlled on Github! Praise the version control (until it gets too large and I need to learn git LFS)).
 
-In any case, I _believe_ the better solution is to make extra tables to manage the relation between a sticker set or character's main sticker to avoid those circular references, but at this point, it works at the moment so not much need to change it.
+In any case, I _believe_ the better solution is to make extra tables to manage the relation between a sticker set or character's main sticker to avoid those circular references, but at this point, it works at the moment so there's not much need to change it.
 
 Now, the issue comes from the fact that favourite stickers are stored in LocalStorage as **an array of sticker IDs**, meaning if I ever need to reconstruct the database from scratch (the worst-case scenario) **the sticker with ID X may be different**, rendering people's favourite lists full of junk.
 
+**When, not if, that will ever happen, I will try my best to migrate—not reconstruct—the existing database to the new structure.** In other words, I will strive to make sure sticker IDs are consistent, and thereby favourite sticker sets are left untouched.
+
 ### Image Inconsistency
-Another issue is that images stored internally are not all of the same size. All images are scraped as their original size from the Fandom Wiki, and I did not do any extra processing nor conversion.
+Another issue is that images stored internally are **not all of the same size.** All images are scraped as their original size from the Fandom Wiki, and I did not do any extra processing nor conversion before storage.
 
-Notably, every sticker in **Set Fortuitous Encounter the Coral Sea** is of much lower resolution than the other stickers, as it is a collaboration with Xiaohongshu (some sort of social media app in China or something) which apparently uses smaller emoji sizes.
+Notably, every sticker in **Set Fortuitous Encounter the Coral Sea** is of much lower resolution than the other stickers, as it is a collaboration with Xiaohongshu (some sort of social media app in China or something) which apparently uses smaller emoji sizes. Additionally, some earlier sets are of larger image dimensions than others.
 
-The frontend mitigates this issue with `next/image` image resizing, but if you are using the images directly, you should keep the variable image sizes in mind.
+So, if you are using the images directly, you should keep the varying image sizes in mind.
